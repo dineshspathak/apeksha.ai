@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { Sidebar } from "./Sidebar";
 import { EditorTabs } from "./EditorTabs";
 import { CodeEditor } from "./CodeEditor";
@@ -21,32 +22,22 @@ export function EditorLayout() {
     const handleKeyDown = (e: KeyboardEvent) => {
       const isMod = e.metaKey || e.ctrlKey;
 
-      // Cmd+P: Command palette (file search)
       if (isMod && e.key === "p") {
         e.preventDefault();
         setShowCommandPalette(true);
       }
-      // Cmd+Shift+P: Command mode
-      if (isMod && e.shiftKey && e.key === "P") {
-        e.preventDefault();
-        setShowCommandPalette(true);
-      }
-      // Cmd+B: Toggle sidebar
       if (isMod && e.key === "b") {
         e.preventDefault();
         toggleSidebar();
       }
-      // Cmd+L: Toggle chat
       if (isMod && e.key === "l") {
         e.preventDefault();
         toggleChat();
       }
-      // Cmd+`: Toggle terminal
       if (isMod && e.key === "`") {
         e.preventDefault();
         toggleTerminal();
       }
-      // Escape: Close command palette
       if (e.key === "Escape") {
         setShowCommandPalette(false);
       }
@@ -58,44 +49,55 @@ export function EditorLayout() {
 
   return (
     <div className="h-screen flex flex-col">
-      {/* Top Toolbar */}
       <Toolbar />
 
-      {/* Main Content */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Sidebar (File Explorer) */}
-        {showSidebar && <Sidebar />}
+      <PanelGroup direction="horizontal" className="flex-1">
+        {/* Sidebar */}
+        {showSidebar && (
+          <>
+            <Panel defaultSize={15} minSize={10} maxSize={30}>
+              <Sidebar />
+            </Panel>
+            <PanelResizeHandle className="w-1 bg-editor-border hover:bg-editor-accent transition cursor-col-resize" />
+          </>
+        )}
 
         {/* Editor + Terminal */}
-        <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Editor Tabs */}
-          <EditorTabs />
+        <Panel defaultSize={showChat ? 55 : 85} minSize={30}>
+          <PanelGroup direction="vertical">
+            <Panel defaultSize={showTerminal ? 70 : 100} minSize={30}>
+              <div className="h-full flex flex-col">
+                <EditorTabs />
+                <div className="flex-1 overflow-hidden">
+                  <CodeEditor />
+                </div>
+              </div>
+            </Panel>
 
-          {/* Code Editor */}
-          <div className="flex-1 overflow-hidden">
-            <CodeEditor />
-          </div>
+            {showTerminal && (
+              <>
+                <PanelResizeHandle className="h-1 bg-editor-border hover:bg-editor-accent transition cursor-row-resize" />
+                <Panel defaultSize={30} minSize={10} maxSize={60}>
+                  <Terminal />
+                </Panel>
+              </>
+            )}
+          </PanelGroup>
+        </Panel>
 
-          {/* Terminal Panel */}
-          {showTerminal && (
-            <div className="h-48 border-t border-editor-border">
-              <Terminal />
-            </div>
-          )}
-        </div>
-
-        {/* AI Chat Panel */}
+        {/* AI Chat */}
         {showChat && (
-          <div className="w-96 border-l border-editor-border flex flex-col">
-            <AIChat />
-          </div>
+          <>
+            <PanelResizeHandle className="w-1 bg-editor-border hover:bg-editor-accent transition cursor-col-resize" />
+            <Panel defaultSize={30} minSize={15} maxSize={50}>
+              <AIChat />
+            </Panel>
+          </>
         )}
-      </div>
+      </PanelGroup>
 
-      {/* Status Bar */}
       <StatusBar />
 
-      {/* Command Palette (Modal) */}
       {showCommandPalette && (
         <CommandPalette onClose={() => setShowCommandPalette(false)} />
       )}
