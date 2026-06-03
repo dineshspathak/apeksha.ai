@@ -1,6 +1,6 @@
 @echo off
 REM ═══════════════════════════════════════════════════════════════
-REM Apeksha AI — Windows Uninstaller
+REM Apeksha AI — Uninstaller (Complete Removal)
 REM Run: uninstall-windows.bat
 REM ═══════════════════════════════════════════════════════════════
 
@@ -8,47 +8,43 @@ echo.
 echo   Apeksha AI — Uninstaller
 echo   ━━━━━━━━━━━━━━━━━━━━━━━━
 echo.
+echo   This will completely remove Apeksha AI from your system.
+echo.
 
-set /p confirm="  Are you sure you want to uninstall Apeksha AI? (y/n): "
+set /p confirm="  Are you sure? (y/n): "
 if /i not "%confirm%"=="y" (
     echo   Cancelled.
     exit /b 0
 )
 
 echo.
+echo   Removing Apeksha AI...
 
 REM Stop processes
-echo   Stopping Apeksha services...
 taskkill /F /IM "python.exe" /FI "WINDOWTITLE eq web_ui*" >nul 2>&1
-taskkill /F /IM "node.exe" /FI "WINDOWTITLE eq next*" >nul 2>&1
+taskkill /F /IM "node.exe" >nul 2>&1
+echo   ✅ Stopped services
 
 REM Remove desktop shortcut
-if exist "%USERPROFILE%\Desktop\Apeksha AI.lnk" (
-    del "%USERPROFILE%\Desktop\Apeksha AI.lnk"
-    echo   ✅ Desktop shortcut removed
-)
+del "%USERPROFILE%\Desktop\Apeksha AI.lnk" 2>nul
+echo   ✅ Removed shortcut
 
-REM Ask about data
-set /p delete_data="  Delete memory & knowledge data too? (y/n): "
-if /i "%delete_data%"=="y" (
-    rmdir /s /q apeksha_memory 2>nul
-    rmdir /s /q apeksha_data 2>nul
-    rmdir /s /q venv 2>nul
-    rmdir /s /q editor\node_modules 2>nul
-    rmdir /s /q editor\.next 2>nul
-    echo   ✅ Data deleted
-)
+REM Remove all data
+rmdir /s /q apeksha_memory 2>nul
+rmdir /s /q apeksha_data 2>nul
+rmdir /s /q venv 2>nul
+rmdir /s /q editor\node_modules 2>nul
+rmdir /s /q editor\.next 2>nul
+echo   ✅ Deleted data
 
-REM Ask about Ollama
-set /p remove_ollama="  Uninstall Ollama too? (y/n): "
-if /i "%remove_ollama%"=="y" (
-    winget uninstall Ollama.Ollama >nul 2>&1
-    echo   ✅ Ollama uninstalled
-)
+REM Uninstall Ollama
+winget uninstall Ollama.Ollama >nul 2>&1
+rmdir /s /q "%USERPROFILE%\.ollama" 2>nul
+echo   ✅ Removed Ollama & AI models
 
 echo.
-echo   ✅ Apeksha AI has been uninstalled.
+echo   ✅ Apeksha AI completely uninstalled.
 echo.
-echo   To fully remove, delete this folder.
+echo   Delete this folder to finish.
 echo.
 pause
