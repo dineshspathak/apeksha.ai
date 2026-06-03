@@ -15,6 +15,9 @@ export function EditorLayout() {
   const { showSidebar, showChat, showTerminal, toggleChat, toggleTerminal, toggleSidebar } =
     useEditorStore();
   const [showCommandPalette, setShowCommandPalette] = useState(false);
+  const [chatSize, setChatSize] = useState<"sm" | "md" | "lg">("md");
+
+  const chatWidths = { sm: "w-[300px]", md: "w-[420px]", lg: "w-[550px]" };
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -49,7 +52,14 @@ export function EditorLayout() {
         </div>
 
         {showChat && (
-          <div className="w-[380px] border-l border-editor-border flex flex-col">
+          <div className={`${chatWidths[chatSize]} border-l border-editor-border flex flex-col relative`}>
+            <button
+              onClick={() => setChatSize(chatSize === "sm" ? "md" : chatSize === "md" ? "lg" : "sm")}
+              className="absolute top-2 right-10 p-1 rounded hover:bg-editor-active text-gray-500 text-xs z-10"
+              title="Resize chat (S/M/L)"
+            >
+              {chatSize === "sm" ? "◻" : chatSize === "md" ? "◻◻" : "◻◻◻"}
+            </button>
             <AIChat />
           </div>
         )}
