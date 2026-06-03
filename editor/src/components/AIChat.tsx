@@ -110,7 +110,7 @@ export function AIChat() {
         {chatMessages.map((msg) => (
           <div key={msg.id} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
             <div
-              className={`max-w-[85%] rounded-lg px-3 py-2 text-sm ${
+              className={`max-w-[85%] rounded-lg px-3 py-2 text-sm overflow-hidden break-words ${
                 msg.role === "user"
                   ? "bg-editor-accent/20 text-gray-200 rounded-br-sm"
                   : "bg-editor-sidebar border border-editor-border text-gray-300 rounded-bl-sm"
@@ -120,13 +120,13 @@ export function AIChat() {
               {msg.tools && msg.tools.length > 0 && (
                 <div className="mb-2 text-xs text-yellow-500/80 font-mono">
                   {msg.tools.map((tool, i) => (
-                    <div key={i} className="truncate">
+                    <div key={i} className="break-words overflow-hidden">
                       {tool.content}
                     </div>
                   ))}
                 </div>
               )}
-              <div className="whitespace-pre-wrap">{msg.content}</div>
+              <div className="whitespace-pre-wrap break-words overflow-hidden">{msg.content}</div>
             </div>
           </div>
         ))}
