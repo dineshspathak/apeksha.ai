@@ -45,6 +45,9 @@ echo   ✅ Removed Ollama & AI models
 echo.
 echo   ✅ Apeksha AI completely uninstalled.
 echo.
-echo   Delete this folder to finish.
-echo.
+
+REM Delete the entire project folder
+cd %USERPROFILE%
+rmdir /s /q "%~dp0"
+echo   ✅ Folder deleted. Goodbye!
 pause

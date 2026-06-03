@@ -55,6 +55,10 @@ echo "  ✅ Removed Ollama & AI models"
 echo ""
 echo "  ✅ Apeksha AI completely uninstalled."
 echo ""
-echo "  Delete this folder to finish:"
-echo "  rm -rf $SCRIPT_DIR"
+
+# Delete the entire project folder (including this script)
+FOLDER_TO_DELETE="$SCRIPT_DIR"
+cd "$HOME"
+rm -rf "$FOLDER_TO_DELETE"
+echo "  ✅ Folder deleted. Goodbye!"
 echo ""
