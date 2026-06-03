@@ -89,6 +89,10 @@ fi
 
 # Activate Python env and start backend
 source venv/bin/activate
+
+# Auto-check for updates (silent, background)
+python -c "from updater import check_model_update; m=check_model_update(); print(f'  Model: {m[\"message\"]}') if m.get('update_available') else None" 2>/dev/null
+
 python web_ui.py &
 BACKEND_PID=\$!
 

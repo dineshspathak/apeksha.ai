@@ -10,6 +10,7 @@ from agent import Apeksha
 from file_manager import FileManager
 from auth import signup, login, verify_token, require_auth
 from billing import get_plans, get_subscription, upgrade_plan, cancel_plan
+from updater import check_model_update, check_software_update, auto_update_model, auto_update_software
 from config import WEB_HOST, WEB_PORT, AGENT_NAME
 
 app = Flask(__name__, static_folder="static")
@@ -118,6 +119,32 @@ def billing_cancel():
         return jsonify({"error": "Unauthorized"}), 401
     result = cancel_plan(user["id"])
     return jsonify(result)
+
+
+# ═══════════════════════════════════════════════════════════════
+# AUTO-UPDATE
+# ═══════════════════════════════════════════════════════════════
+
+@app.route("/api/update/check", methods=["GET"])
+def update_check():
+    """Check for available updates (model + software)."""
+    model = check_model_update()
+    software = check_software_update()
+    return jsonify({"model": model, "software": software})
+
+
+@app.route("/api/update/model", methods=["POST"])
+def update_model():
+    """Download and switch to the best model."""
+    result = auto_update_model()
+    return jsonify({"message": result})
+
+
+@app.route("/api/update/software", methods=["POST"])
+def update_software():
+    """Pull latest Apeksha code from GitHub."""
+    result = auto_update_software()
+    return jsonify({"message": result})
 
 
 # ═══════════════════════════════════════════════════════════════

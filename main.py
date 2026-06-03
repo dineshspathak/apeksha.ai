@@ -123,6 +123,12 @@ def handle_command(command: str, agent: Apeksha, console: Console):
         from web_ui import start_web_ui
         start_web_ui()
 
+    elif cmd == "/update":
+        console.print("[cyan]🔄 Checking for updates...[/cyan]")
+        from updater import run_full_update
+        result = run_full_update()
+        console.print(f"[green]{result}[/green]")
+
     else:
         console.print(f"[red]Unknown command: {command}[/red]. Type /help")
 
