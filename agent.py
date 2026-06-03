@@ -1,0 +1,133 @@
+"""Apeksha AI - Core Agent Loop."""
+
+import json
+import re
+import ollama
+
+from config import MODEL, SYSTEM_PROMPT, MAX_TOOL_ITERATIONS
+from memory import ShortTermMemory, LongTermMemory
+from knowledge import KnowledgeBase
+from tools import execute_tool, TOOLS
+
+
+class Apeksha:
+    """Apeksha AI - A fully local, intelligent agent."""
+
+    def __init__(self):
+        self.short_memory = ShortTermMemory()
+        self.long_memory = LongTermMemory()
+        self.knowledge = KnowledgeBase()
+        self.model = MODEL
+        self.system_prompt = SYSTEM_PROMPT
+
+        # Inject memory/knowledge functions into tools
+        TOOLS["remember"] = self.long_memory.remember
+        TOOLS["recall"] = self.long_memory.recall
+        TOOLS["search_knowledge"] = self.knowledge.search
+
+    def chat(self, user_input: str) -> str:
+        """Process user input through the agentic loop."""
+        self.short_memory.add_user_message(user_input)
+
+        iterations = 0
+        response_text = ""
+
+        while iterations < MAX_TOOL_ITERATIONS:
+            iterations += 1
+            response_text = self._call_llm()
+            tool_call = self._extract_tool_call(response_text)
+
+            if tool_call:
+                tool_name = tool_call["name"]
+                tool_args = tool_call["arguments"]
+                result = execute_tool(tool_name, tool_args)
+
+                self.short_memory.add_assistant_message(response_text)
+                self.short_memory.add_tool_result(tool_name, result)
+                continue
+            else:
+                self.short_memory.add_assistant_message(response_text)
+                return response_text
+
+        self.short_memory.add_assistant_message(response_text)
+        return response_text
+
+    def chat_stream(self, user_input: str):
+        """Stream version - yields (type, content) tuples."""
+        self.short_memory.add_user_message(user_input)
+
+        iterations = 0
+        response_text = ""
+
+        while iterations < MAX_TOOL_ITERATIONS:
+            iterations += 1
+            response_text = self._call_llm()
+            tool_call = self._extract_tool_call(response_text)
+
+            if tool_call:
+                tool_name = tool_call["name"]
+                tool_args = tool_call["arguments"]
+
+                args_preview = json.dumps(tool_args, indent=None)
+                if len(args_preview) > 120:
+                    args_preview = args_preview[:120] + "..."
+                yield ("tool_start", f"🔧 {tool_name}({args_preview})")
+
+                result = execute_tool(tool_name, tool_args)
+
+                result_preview = result[:300] + "..." if len(result) > 300 else result
+                yield ("tool_result", result_preview)
+
+                self.short_memory.add_assistant_message(response_text)
+                self.short_memory.add_tool_result(tool_name, result)
+                continue
+            else:
+                self.short_memory.add_assistant_message(response_text)
+                yield ("response", response_text)
+                return
+
+        self.short_memory.add_assistant_message(response_text)
+        yield ("response", response_text)
+
+    def _call_llm(self) -> str:
+        """Call Ollama and return the response."""
+        messages = [{"role": "system", "content": self.system_prompt}]
+        messages.extend(self.short_memory.get_messages())
+
+        try:
+            response = ollama.chat(model=self.model, messages=messages)
+            return response["message"]["content"]
+        except Exception as e:
+            return f"Error communicating with Ollama: {e}"
+
+    def _extract_tool_call(self, text: str) -> dict | None:
+        """Extract a tool call from the LLM response."""
+        pattern = r"<tool_call>\s*(\{.*?\})\s*</tool_call>"
+        match = re.search(pattern, text, re.DOTALL)
+
+        if match:
+            try:
+                tool_data = json.loads(match.group(1))
+                if "name" in tool_data and "arguments" in tool_data:
+                    return tool_data
+            except json.JSONDecodeError:
+                pass
+        return None
+
+    def reset(self):
+        """Reset short-term conversation memory."""
+        self.short_memory.clear()
+
+    def ingest_knowledge(self, directory: str = None) -> str:
+        """Ingest documents into the knowledge base."""
+        return self.knowledge.ingest_directory(directory)
+
+    def get_status(self) -> dict:
+        """Get agent status info."""
+        return {
+            "name": "Apeksha",
+            "model": self.model,
+            "session_messages": len(self.short_memory.messages),
+            "long_term_memories": self.long_memory.get_count(),
+            "knowledge_chunks": self.knowledge.get_count(),
+        }

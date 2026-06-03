@@ -1,0 +1,52 @@
+# Apeksha AI - Docker Compose (Full Stack)
+
+version: "3.8"
+
+services:
+  # Apeksha Backend + API
+  apeksha-backend:
+    build: .
+    container_name: apeksha-backend
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./workspace:/app/workspace
+      - ./knowledge:/app/knowledge
+      - ./apeksha_memory:/app/apeksha_memory
+      - ./apeksha_data:/app/apeksha_data
+    environment:
+      - APEKSHA_WORKSPACE=/app/workspace
+      - OLLAMA_HOST=http://ollama:11434
+      - FLASK_ENV=production
+    depends_on:
+      - ollama
+    restart: unless-stopped
+
+  # Ollama (Local LLM)
+  ollama:
+    image: ollama/ollama:latest
+    container_name: apeksha-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: unless-stopped
+    # Pull model on first run:
+    # docker exec apeksha-ollama ollama pull llama3.1
+
+  # Frontend (Next.js)
+  apeksha-editor:
+    build:
+      context: ./editor
+      dockerfile: Dockerfile
+    container_name: apeksha-editor
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:5000
+    depends_on:
+      - apeksha-backend
+    restart: unless-stopped
+
+volumes:
+  ollama_data:
