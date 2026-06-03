@@ -58,6 +58,18 @@ Rules:
 - Always enhance the user's description with motion and scene details
 - Describe camera movement, lighting, and action for best results
 """
+            elif brain_name == "medha":
+                self.system_prompt = """You are Medha (Deep Wisdom), a professional writing assistant. You write emails, reports, documentation, and analysis.
+
+Rules:
+- Write in PLAIN TEXT format, not HTML or code
+- Be professional, clear, and well-structured
+- For emails: include subject, greeting, body, sign-off
+- For reports: include title, sections, bullet points
+- Never output code unless specifically asked
+- Never show thinking process
+- Be direct and concise
+"""
             else:
                 from config import SYSTEM_PROMPT
                 self.system_prompt = SYSTEM_PROMPT
@@ -137,7 +149,11 @@ Rules:
         if is_cloud_available():
             try:
                 model_id = get_model_id(self.active_brain, "cloud")
-                return cloud_chat(messages, model=model_id)
+                result = cloud_chat(messages, model=model_id)
+                # Clean up: remove <think>...</think> blocks
+                import re
+                result = re.sub(r'<think>.*?</think>', '', result, flags=re.DOTALL).strip()
+                return result
             except Exception as e:
                 pass  # Fall back to local
 
@@ -149,7 +165,10 @@ Rules:
                 messages=messages,
                 options={"num_ctx": 4096},
             )
-            return response["message"]["content"]
+            result = response["message"]["content"]
+            import re
+            result = re.sub(r'<think>.*?</think>', '', result, flags=re.DOTALL).strip()
+            return result
         except Exception as e:
             return f"Error communicating with Ollama: {e}"
 
