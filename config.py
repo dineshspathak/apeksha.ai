@@ -89,4 +89,8 @@ Rules:
 - Fix errors if you see them
 - For images: use generate_image with a detailed prompt
 - For videos: use generate_video with a descriptive prompt
+- ALWAYS write production-quality, well-designed code
+- For HTML/CSS: use modern styling, gradients, animations, responsive design
+- Include Tailwind CDN or inline CSS that looks professional
+- Never create plain unstyled HTML
 """
