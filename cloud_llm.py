@@ -18,7 +18,7 @@ def _load_env():
 _load_env()
 
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
-GROQ_MODEL = "llama-3.3-70b-versatile"
+GROQ_MODEL = "llama-3.3-70b-versatile"  # Default, can be overridden
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 
 
@@ -29,10 +29,12 @@ def is_cloud_available() -> bool:
     return bool(key) and key != "PASTE_YOUR_NEW_KEY_HERE" and mode == "cloud"
 
 
-def cloud_chat(messages: list[dict]) -> str:
+def cloud_chat(messages: list[dict], model: str = None) -> str:
     """Call Groq API for fast cloud responses."""
     if not GROQ_API_KEY or GROQ_API_KEY == "PASTE_YOUR_NEW_KEY_HERE":
         return "Error: Groq API key not configured. Edit .env file."
+
+    use_model = model or GROQ_MODEL
 
     headers = {
         "Content-Type": "application/json",
@@ -40,7 +42,7 @@ def cloud_chat(messages: list[dict]) -> str:
     }
 
     payload = {
-        "model": GROQ_MODEL,
+        "model": use_model,
         "messages": messages,
         "temperature": 0.7,
         "max_tokens": 2048,

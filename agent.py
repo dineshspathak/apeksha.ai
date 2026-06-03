@@ -19,11 +19,18 @@ class Apeksha:
         self.knowledge = KnowledgeBase()
         self.model = MODEL
         self.system_prompt = SYSTEM_PROMPT
+        self.active_brain = "buddhi"  # Default branded model
 
         # Inject memory/knowledge functions into tools
         TOOLS["remember"] = self.long_memory.remember
         TOOLS["recall"] = self.long_memory.recall
         TOOLS["search_knowledge"] = self.knowledge.search
+
+    def set_brain(self, brain_name: str):
+        """Switch the AI brain (model)."""
+        from models import MODELS, get_model_id
+        if brain_name in MODELS:
+            self.active_brain = brain_name
 
     def chat(self, user_input: str) -> str:
         """Process user input through the agentic loop."""
@@ -96,16 +103,19 @@ class Apeksha:
 
         # Try cloud first (fast)
         from cloud_llm import is_cloud_available, cloud_chat
+        from models import get_model_id
         if is_cloud_available():
             try:
-                return cloud_chat(messages)
+                model_id = get_model_id(self.active_brain, "cloud")
+                return cloud_chat(messages, model=model_id)
             except Exception as e:
                 pass  # Fall back to local
 
         # Local fallback
         try:
+            local_model = get_model_id(self.active_brain, "local")
             response = ollama.chat(
-                model=self.model,
+                model=local_model,
                 messages=messages,
                 options={"num_ctx": 4096},
             )

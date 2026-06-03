@@ -11,6 +11,7 @@ from file_manager import FileManager
 from auth import signup, login, verify_token, require_auth
 from billing import get_plans, get_subscription, upgrade_plan, cancel_plan
 from updater import check_model_update, check_software_update, auto_update_model, auto_update_software
+from models import list_models, get_model_info
 from config import WEB_HOST, WEB_PORT, AGENT_NAME
 
 app = Flask(__name__, static_folder="static")
@@ -155,9 +156,14 @@ def update_software():
 def chat():
     data = request.json
     user_message = data.get("message", "").strip()
+    brain = data.get("brain", None)
 
     if not user_message:
         return jsonify({"error": "Empty message"}), 400
+
+    # Switch brain if requested
+    if brain:
+        agent.set_brain(brain)
 
     tool_activities = []
     final_response = ""
@@ -171,6 +177,13 @@ def chat():
             final_response = content
 
     return jsonify({"response": final_response, "tools": tool_activities})
+
+
+@app.route("/api/models", methods=["GET"])
+def get_models():
+    """List available AI brains."""
+    tier = request.args.get("tier", None)
+    return jsonify({"models": list_models(tier), "active": agent.active_brain})
 
 
 @app.route("/api/reset", methods=["POST"])
