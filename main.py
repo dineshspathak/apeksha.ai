@@ -129,6 +129,21 @@ def handle_command(command: str, agent: Apeksha, console: Console):
         result = run_full_update()
         console.print(f"[green]{result}[/green]")
 
+    elif cmd == "/brain" or cmd.startswith("/brain"):
+        arg = parts[1] if len(parts) > 1 else ""
+        if arg:
+            agent.set_brain(arg)
+            from models import get_model_info
+            info = get_model_info(arg)
+            console.print(f"[cyan]Switched to {info['display_name']} ({info['meaning']})[/cyan]")
+        else:
+            from models import list_models
+            console.print("[bold]Available brains:[/bold]")
+            for m in list_models():
+                active = "→" if m["id"] == agent.active_brain else " "
+                console.print(f"  {active} [bold]{m['name']}[/bold] — {m['description']}")
+            console.print("\n  Use: /brain buddhi")
+
     else:
         console.print(f"[red]Unknown command: {command}[/red]. Type /help")
 

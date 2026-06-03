@@ -1,20 +1,19 @@
 @echo off
 REM ═══════════════════════════════════════════════════════════════
-REM Apeksha AI — Windows Installer
-REM Just double-click this file or run: install-windows.bat
+REM Apeksha AI — Windows Installer (Cloud Mode)
+REM Double-click to install
 REM ═══════════════════════════════════════════════════════════════
 
 echo.
 echo   Apeksha AI Installer (Windows)
-echo   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-echo   Setting up your local AI code editor...
+echo   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+echo   Setting up your AI assistant...
 echo.
 
-REM ─── Check/Install winget ──────────────────────────────────
+REM ─── Check winget ──────────────────────────────────────────
 where winget >nul 2>nul
 if %ERRORLEVEL% neq 0 (
-    echo ❌ winget not found. Please install "App Installer" from Microsoft Store.
-    echo    https://apps.microsoft.com/detail/9NBLGGH4NNS1
+    echo   Please install "App Installer" from Microsoft Store first.
     pause
     exit /b 1
 )
@@ -22,90 +21,72 @@ if %ERRORLEVEL% neq 0 (
 REM ─── Install Python ────────────────────────────────────────
 where python >nul 2>nul
 if %ERRORLEVEL% neq 0 (
-    echo 🐍 Installing Python...
+    echo   Installing Python...
     winget install Python.Python.3.11 --accept-package-agreements --accept-source-agreements
 )
-echo ✅ Python ready
+echo   ✅ Python ready
 
 REM ─── Install Node.js ───────────────────────────────────────
 where node >nul 2>nul
 if %ERRORLEVEL% neq 0 (
-    echo 📦 Installing Node.js...
+    echo   Installing Node.js...
     winget install OpenJS.NodeJS.LTS --accept-package-agreements --accept-source-agreements
 )
-echo ✅ Node.js ready
-
-REM ─── Install Ollama ────────────────────────────────────────
-where ollama >nul 2>nul
-if %ERRORLEVEL% neq 0 (
-    echo 🧠 Installing Ollama...
-    winget install Ollama.Ollama --accept-package-agreements --accept-source-agreements
-)
-echo ✅ Ollama ready
-
-REM ─── Start Ollama and Pull AI Model ────────────────────
-echo.
-echo 🚀 Starting Ollama...
-start /B ollama serve
-timeout /t 3 /nobreak >nul
-echo 🧠 Downloading AI model...
-ollama pull phi3:mini
-echo ✅ AI model ready
+echo   ✅ Node.js ready
 
 REM ─── Setup Python Environment ─────────────────────────────
 echo.
-echo 📦 Installing Apeksha dependencies...
+echo   Installing dependencies...
 python -m venv venv
 call venv\Scripts\activate.bat
 pip install -r requirements.txt --quiet
-echo ✅ Python packages installed
+echo   ✅ Python packages installed
 
 REM ─── Setup Editor ─────────────────────────────────────────
-echo.
-echo 🖥️  Setting up editor...
+echo   Setting up editor...
 cd editor
 call npm install --silent
 cd ..
-echo ✅ Editor ready
+echo   ✅ Editor ready
+
+REM ─── Setup .env ────────────────────────────────────────────
+if not exist ".env" (
+    echo # Apeksha AI Configuration> .env
+    echo GROQ_API_KEY=PASTE_YOUR_KEY_HERE>> .env
+    echo AI_MODE=cloud>> .env
+)
 
 REM ─── Create Launch Script ──────────────────────────────────
 (
 echo @echo off
-echo echo Starting Apeksha AI...
-echo start /B ollama serve
-echo timeout /t 2 /nobreak ^>nul
-echo call venv\Scripts\activate.bat
-echo start /B python web_ui.py
+echo cd /d "%~dp0"
+echo start /B "" venv\Scripts\python.exe web_ui.py
 echo cd editor
-echo start /B npm run dev
+echo start /B "" npm run dev
 echo cd ..
-echo timeout /t 3 /nobreak ^>nul
-echo start http://localhost:3000
-echo echo.
-echo echo Apeksha AI is running!
-echo echo    Editor: http://localhost:3000
-echo echo    Chat:   http://127.0.0.1:5000
-echo echo.
-echo echo    Close this window to stop.
+echo timeout /t 10 /nobreak ^>nul
+echo start http://127.0.0.1:3000
+echo echo Apeksha AI is running. Close this window to stop.
 echo pause
 ) > launch.bat
 
 REM ─── Create Desktop Shortcut ───────────────────────────────
 set SCRIPT_PATH=%cd%\launch.bat
-powershell -Command "$ws = New-Object -ComObject WScript.Shell; $s = $ws.CreateShortcut('%USERPROFILE%\Desktop\Apeksha AI.lnk'); $s.TargetPath = '%SCRIPT_PATH%'; $s.WorkingDirectory = '%cd%'; $s.Description = 'Apeksha AI - Local Code Editor'; $s.Save()"
+set ICON_PATH=%cd%\static\icon.png
+powershell -Command "$ws = New-Object -ComObject WScript.Shell; $s = $ws.CreateShortcut('%USERPROFILE%\Desktop\Apeksha AI.lnk'); $s.TargetPath = '%SCRIPT_PATH%'; $s.WorkingDirectory = '%cd%'; $s.Description = 'Apeksha AI - AI Code Editor'; $s.Save()"
 
 echo.
-echo ═══════════════════════════════════════════════════════════
+echo   ═══════════════════════════════════════════════
 echo.
-echo   Apeksha AI installed successfully!
+echo   ✅ Apeksha AI installed!
 echo.
-echo   A shortcut "Apeksha AI" has been created on your Desktop.
-echo   Double-click it to start Apeksha.
+echo   NEXT: Add your free AI key:
+echo     1. Go to https://console.groq.com (sign up free)
+echo     2. Create API key
+echo     3. Open .env file and paste your key
 echo.
-echo ═══════════════════════════════════════════════════════════
+echo   Then double-click "Apeksha AI" on your Desktop.
 echo.
-
-set /p launch_now="  🚀 Launch Apeksha now? (y/n): "
-if /i "%launch_now%"=="y" call launch.bat
-
+echo   ═══════════════════════════════════════════════
+echo.
 pause

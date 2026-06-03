@@ -1,6 +1,6 @@
 #!/bin/bash
 # ═══════════════════════════════════════════════════════════════
-# Apeksha AI — Linux Installer
+# Apeksha AI — Linux Installer (Cloud Mode)
 # Just run: ./install-linux.sh
 # ═══════════════════════════════════════════════════════════════
 
@@ -8,166 +8,131 @@ set -e
 
 echo ""
 echo "  Apeksha AI Installer (Linux)"
-echo "  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "  Setting up your local AI code editor..."
+echo "  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "  Setting up your AI assistant..."
 echo ""
 
 # ─── Detect package manager ──────────────────────────────
 if command -v apt-get &> /dev/null; then
-    PKG_MANAGER="apt"
+    PKG="apt"
 elif command -v dnf &> /dev/null; then
-    PKG_MANAGER="dnf"
+    PKG="dnf"
 elif command -v pacman &> /dev/null; then
-    PKG_MANAGER="pacman"
+    PKG="pacman"
 else
-    echo "❌ Could not detect package manager (apt/dnf/pacman)"
+    echo "  Unsupported package manager. Install Python 3.10+ and Node.js 18+ manually."
     exit 1
 fi
-echo "✅ Package manager: $PKG_MANAGER"
 
 # ─── Install Python ──────────────────────────────────────
 if ! command -v python3 &> /dev/null; then
-    echo "🐍 Installing Python..."
-    if [ "$PKG_MANAGER" = "apt" ]; then
+    echo "  Installing Python..."
+    if [ "$PKG" = "apt" ]; then
         sudo apt-get update -qq && sudo apt-get install -y -qq python3 python3-venv python3-pip
-    elif [ "$PKG_MANAGER" = "dnf" ]; then
+    elif [ "$PKG" = "dnf" ]; then
         sudo dnf install -y python3 python3-pip
-    elif [ "$PKG_MANAGER" = "pacman" ]; then
+    elif [ "$PKG" = "pacman" ]; then
         sudo pacman -S --noconfirm python python-pip
     fi
 fi
-echo "✅ Python $(python3 --version | cut -d' ' -f2) ready"
+echo "  ✅ Python $(python3 --version | cut -d' ' -f2)"
 
 # ─── Install Node.js ─────────────────────────────────────
 if ! command -v node &> /dev/null; then
-    echo "📦 Installing Node.js..."
-    if [ "$PKG_MANAGER" = "apt" ]; then
+    echo "  Installing Node.js..."
+    if [ "$PKG" = "apt" ]; then
         curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
         sudo apt-get install -y -qq nodejs
-    elif [ "$PKG_MANAGER" = "dnf" ]; then
+    elif [ "$PKG" = "dnf" ]; then
         curl -fsSL https://rpm.nodesource.com/setup_20.x | sudo bash -
         sudo dnf install -y nodejs
-    elif [ "$PKG_MANAGER" = "pacman" ]; then
+    elif [ "$PKG" = "pacman" ]; then
         sudo pacman -S --noconfirm nodejs npm
     fi
 fi
-echo "✅ Node.js $(node --version) ready"
-
-# ─── Install Ollama ──────────────────────────────────────
-if ! command -v ollama &> /dev/null; then
-    echo "🧠 Installing Ollama..."
-    curl -fsSL https://ollama.ai/install.sh | sh
-fi
-echo "✅ Ollama ready"
-
-# ─── Pull AI Model (auto-detect best for this hardware) ──
-echo ""
-RAM_KB=$(grep MemTotal /proc/meminfo | awk '{print $2}')
-RAM_GB=$((RAM_KB / 1024 / 1024))
-echo "  Detected: ${RAM_GB}GB RAM"
-
-if [ "$RAM_GB" -ge 16 ]; then
-    AI_MODEL="llama3.1"
-    echo "🧠 Downloading AI model (llama3.1 — best quality for ${RAM_GB}GB)..."
-else
-    AI_MODEL="phi3:mini"
-    echo "🧠 Downloading AI model (phi3:mini — fast for ${RAM_GB}GB)..."
-fi
-
-echo "   This may take a few minutes on first install..."
-ollama pull $AI_MODEL
-echo "✅ AI model ready"
+echo "  ✅ Node.js $(node --version)"
 
 # ─── Setup Python Environment ────────────────────────────
 echo ""
-echo "📦 Installing Apeksha dependencies..."
+echo "  Installing dependencies..."
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt --quiet
-echo "✅ Python packages installed"
+echo "  ✅ Python packages installed"
 
-# ─── Setup Editor ────────────────────────────────────────
-echo ""
-echo "🖥️  Setting up editor..."
+# ─── Setup Editor Frontend ────────────────────────────────
+echo "  Setting up editor..."
 cd editor
 npm install --silent 2>/dev/null
 cd ..
-echo "✅ Editor ready"
+echo "  ✅ Editor ready"
 
-# ─── Create Launch Script ────────────────────────────────
+# ─── Setup .env ───────────────────────────────────────────
+if [ ! -f ".env" ]; then
+    cat > .env << ENV
+# Apeksha AI Configuration
+GROQ_API_KEY=PASTE_YOUR_KEY_HERE
+AI_MODE=cloud
+ENV
+fi
+
+# ─── Create Desktop Entry ────────────────────────────────
 INSTALL_DIR="$(pwd)"
-
-cat > "$INSTALL_DIR/launch.sh" << EOF
-#!/bin/bash
-cd "$INSTALL_DIR"
-
-# Start Ollama if not running
-if ! pgrep -x "ollama" > /dev/null 2>&1; then
-    ollama serve &>/dev/null &
-    sleep 2
-fi
-
-# Activate Python env and start backend
-source venv/bin/activate
-python web_ui.py &
-BACKEND_PID=\$!
-
-# Start editor frontend
-cd editor
-npm run dev &>/dev/null &
-FRONTEND_PID=\$!
-cd ..
-
-sleep 3
-
-# Open in browser
-if command -v xdg-open &> /dev/null; then
-    xdg-open "http://localhost:3000"
-elif command -v open &> /dev/null; then
-    open "http://localhost:3000"
-fi
-
-echo ""
-echo "Apeksha AI is running!"
-echo "   Editor: http://localhost:3000"
-echo "   Chat:   http://127.0.0.1:5000"
-echo ""
-echo "   Press Ctrl+C to stop"
-
-trap "kill \$BACKEND_PID \$FRONTEND_PID 2>/dev/null; exit" INT TERM
-wait
-EOF
-
-chmod +x "$INSTALL_DIR/launch.sh"
-
-# ─── Create Desktop Entry (Linux) ────────────────────────
 DESKTOP_FILE="$HOME/.local/share/applications/apeksha-ai.desktop"
 mkdir -p "$HOME/.local/share/applications"
 
-cat > "$DESKTOP_FILE" << EOF
+cat > "$DESKTOP_FILE" << DESKTOP
 [Desktop Entry]
 Name=Apeksha AI
-Comment=Local AI Code Editor
+Comment=AI Code Editor & Assistant
 Exec=bash -c 'cd $INSTALL_DIR && ./launch.sh'
-Terminal=true
+Terminal=false
 Type=Application
 Categories=Development;
-EOF
+Icon=$INSTALL_DIR/static/icon.png
+DESKTOP
+
+# ─── Create Launch Script ────────────────────────────────
+cat > "$INSTALL_DIR/launch.sh" << LAUNCH
+#!/bin/bash
+DIR="$INSTALL_DIR"
+cd "\$DIR"
+
+# Start backend
+"\$DIR/venv/bin/python" "\$DIR/web_ui.py" &>/dev/null &
+
+# Start frontend
+cd "\$DIR/editor"
+npm run dev &>/dev/null &
+cd "\$DIR"
+
+# Wait for ready
+for i in \$(seq 1 30); do
+    if curl -s http://127.0.0.1:3000 > /dev/null 2>&1; then
+        break
+    fi
+    sleep 1
+done
+
+# Open browser
+xdg-open "http://127.0.0.1:3000" 2>/dev/null || open "http://127.0.0.1:3000" 2>/dev/null
+
+wait
+LAUNCH
+
+chmod +x "$INSTALL_DIR/launch.sh"
 
 echo ""
-echo "═══════════════════════════════════════════════════════════"
+echo "  ═══════════════════════════════════════════════"
 echo ""
-echo "  Apeksha AI installed successfully!"
+echo "  ✅ Apeksha AI installed!"
 echo ""
-echo "  To start:"
-echo "    ./launch.sh"
+echo "  NEXT: Add your free AI key:"
+echo "    1. Go to https://console.groq.com (sign up free)"
+echo "    2. Create API key"  
+echo "    3. Edit .env file and paste your key"
 echo ""
-echo "  Or find 'Apeksha AI' in your application menu."
+echo "  Then find 'Apeksha AI' in your app menu."
 echo ""
-echo "═══════════════════════════════════════════════════════════"
+echo "  ═══════════════════════════════════════════════"
 echo ""
-
-read -p "  🚀 Launch Apeksha now? (y/n): " launch_now
-if [[ "$launch_now" == "y" || "$launch_now" == "Y" ]]; then
-    ./launch.sh
-fi
