@@ -67,7 +67,7 @@ export function AIChat() {
       {/* Header */}
       <div className="h-9 px-4 flex items-center justify-between border-b border-editor-border bg-editor-sidebar">
         <div className="flex items-center gap-2">
-          <Sparkles size={14} className="text-editor-accent" />
+          <img src="/logo.png" alt="" className="w-4 h-4 rounded" />
           <span className="text-sm font-medium text-gray-300">Apeksha AI</span>
         </div>
         <button
@@ -83,9 +83,9 @@ export function AIChat() {
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {chatMessages.length === 0 && (
           <div className="text-center py-8">
-            <p className="text-2xl mb-2"></p>
+            <img src="/logo.png" alt="Apeksha AI" className="w-10 h-10 rounded-lg mx-auto mb-2" />
             <p className="text-sm text-gray-500">
-              Ask me to write code, explain concepts, or build features.
+              Continuous Learning & Infinite Possibility
             </p>
             <div className="mt-4 space-y-2">
               {[

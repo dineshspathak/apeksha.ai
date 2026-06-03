@@ -12,7 +12,7 @@ export function StatusBar() {
       {/* Left */}
       <div className="flex items-center gap-3">
         <span>Apeksha AI</span>
-        <span>⟡ Local Mode</span>
+        <span>⟡ Cloud Mode</span>
       </div>
 
       {/* Right */}

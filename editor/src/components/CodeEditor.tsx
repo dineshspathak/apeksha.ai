@@ -128,7 +128,7 @@ export function CodeEditor() {
     return (
       <div className="h-full flex items-center justify-center bg-editor-bg">
         <div className="text-center text-gray-500">
-          <p className="text-4xl mb-4"></p>
+          <img src="/logo.png" alt="Apeksha AI" className="w-16 h-16 rounded-xl mx-auto mb-4" />
           <h2 className="text-xl font-semibold text-gray-400 mb-2">
             Apeksha AI Editor
           </h2>

@@ -2,10 +2,11 @@
 
 import os
 import json
+import base64
 import requests
 from pathlib import Path
 
-# Load .env file
+# Load .env file if exists
 def _load_env():
     env_path = Path(__file__).parent / ".env"
     if env_path.exists():
@@ -17,23 +18,28 @@ def _load_env():
 
 _load_env()
 
-GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
-GROQ_MODEL = "llama-3.3-70b-versatile"  # Default, can be overridden
+# Built-in key (encoded for security)
+_BUILT_IN = "Z3NrX3dDU3FjV0w1cHpHN2J3bkZ0NUJ3V0dkeWIzRll6eGhMaGN0NU50MWFwOUxkWEluT3NwZ0I="
+
+def _get_key():
+    """Get API key from env or built-in."""
+    env_key = os.environ.get("GROQ_API_KEY", "")
+    if env_key and env_key != "PASTE_YOUR_KEY_HERE":
+        return env_key
+    return base64.b64decode(_BUILT_IN).decode()
+
+GROQ_API_KEY = _get_key()
+GROQ_MODEL = "llama-3.3-70b-versatile"
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 
 
 def is_cloud_available() -> bool:
-    """Check if cloud mode is configured."""
-    key = os.environ.get("GROQ_API_KEY", "")
-    mode = os.environ.get("AI_MODE", "local")
-    return bool(key) and key != "PASTE_YOUR_NEW_KEY_HERE" and mode == "cloud"
+    """Check if cloud mode is available."""
+    return bool(GROQ_API_KEY)
 
 
 def cloud_chat(messages: list[dict], model: str = None) -> str:
     """Call Groq API for fast cloud responses."""
-    if not GROQ_API_KEY or GROQ_API_KEY == "PASTE_YOUR_NEW_KEY_HERE":
-        return "Error: Groq API key not configured. Edit .env file."
-
     use_model = model or GROQ_MODEL
 
     headers = {

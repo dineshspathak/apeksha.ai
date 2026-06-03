@@ -57,10 +57,10 @@ cd ..
 echo "  ✅ Editor ready"
 
 # ─── Setup .env (Cloud Mode) ─────────────────────────────
+# Key is already hardcoded - no .env needed for basic use
 if [ ! -f ".env" ]; then
-    cp .env.example .env 2>/dev/null || cat > .env << ENV
-# Apeksha AI Configuration
-GROQ_API_KEY=PASTE_YOUR_KEY_HERE
+    cat > .env << ENV
+# Apeksha AI Configuration (Optional - key is built-in)
 AI_MODE=cloud
 ENV
 fi
@@ -144,13 +144,11 @@ echo "  ════════════════════════
 echo ""
 echo "  ✅ Apeksha AI installed!"
 echo ""
-echo "  NEXT: Add your free AI key:"
-echo "    1. Go to https://console.groq.com (sign up free)"
-echo "    2. Create API key"
-echo "    3. Run: open -a TextEdit .env"
-echo "    4. Paste your key after GROQ_API_KEY="
-echo ""
-echo "  Then open 'Apeksha AI' from Applications."
+echo "  Open 'Apeksha AI' from Applications."
+echo "  It will open in your browser automatically."
 echo ""
 echo "  ═══════════════════════════════════════════════"
 echo ""
+
+# Launch immediately
+open "/Applications/Apeksha AI.app"
