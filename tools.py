@@ -204,6 +204,10 @@ def search_knowledge(query: str) -> str:
     return "Knowledge base not initialized"
 
 
+# Import media tools
+from media_tools import generate_image, generate_video
+
+
 # Tool registry
 TOOLS = {
     "web_search": web_search,
@@ -219,6 +223,8 @@ TOOLS = {
     "remember": remember,
     "recall": recall,
     "search_knowledge": search_knowledge,
+    "generate_image": generate_image,
+    "generate_video": generate_video,
 }
 
 
