@@ -387,3 +387,11 @@ body {
     background: var(--bg-primary);
     color: var(--text-primary);
 }
+
+/* Brain Description */
+.brain-description {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    padding: 4px 0;
+    opacity: 0.7;
+}

@@ -12,6 +12,15 @@ fetchStatus();
 
 function switchBrain(brain) {
     activeBrain = brain;
+    const descriptions = {
+        buddhi: "Supreme Intellect — Best for building apps, debugging, and complex logic",
+        drishti: "Clear Vision — Quick one-line answers, simple questions",
+        medha: "Deep Wisdom — Emails, project reports, documentation, analysis",
+        pragya: "Practical Intelligence — Good at everything, balanced",
+        kalpana: "Imagination — Describe any image and it creates it for you",
+        srijan: "Creation — Describe a scene and it creates a video",
+    };
+    document.getElementById('brain-desc').textContent = descriptions[brain] || "";
 }
 
 async function fetchStatus() {

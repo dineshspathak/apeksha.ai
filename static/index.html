@@ -45,13 +45,14 @@
             <div class="input-area">
                 <div class="input-container">
                     <select id="brain-selector" onchange="switchBrain(this.value)" title="Select AI Brain">
-                        <option value="buddhi">🧠 Buddhi — Complex Coding</option>
-                        <option value="drishti">⚡ Drishti — Quick Answers</option>
-                        <option value="medha">📝 Medha — Writing & Reports</option>
-                        <option value="pragya">✨ Pragya — Balanced</option>
-                        <option value="kalpana">🎨 Kalpana — Generate Images</option>
-                        <option value="srijan">🎬 Srijan — Generate Videos</option>
+                        <option value="buddhi" title="Supreme Intellect — Best for building apps, debugging, and complex logic">🧠 Buddhi — Complex Coding</option>
+                        <option value="drishti" title="Clear Vision — Quick one-line answers, simple questions">⚡ Drishti — Quick Answers</option>
+                        <option value="medha" title="Deep Wisdom — Emails, project reports, documentation, analysis">📝 Medha — Writing & Reports</option>
+                        <option value="pragya" title="Practical Intelligence — Good at everything, balanced">✨ Pragya — Balanced</option>
+                        <option value="kalpana" title="Imagination — Describe any image and it creates it for you">🎨 Kalpana — Generate Images</option>
+                        <option value="srijan" title="Creation — Describe a scene and it creates a video">🎬 Srijan — Generate Videos</option>
                     </select>
+                    <div class="brain-description" id="brain-desc">Supreme Intellect — Best for building apps, debugging, and complex logic</div>
                     <textarea 
                         id="user-input" 
                         placeholder="Ask Apeksha anything..."
