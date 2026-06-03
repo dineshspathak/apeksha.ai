@@ -48,6 +48,19 @@ if ! command -v ollama &> /dev/null; then
 fi
 echo "✅ Ollama ready"
 
+# ─── Start Ollama ────────────────────────────────────────
+echo ""
+echo "🚀 Starting Ollama..."
+brew services start ollama 2>/dev/null || true
+# Wait for Ollama to be ready
+sleep 3
+# If brew services didn't work, try starting manually in background
+if ! curl -s http://localhost:11434/api/version > /dev/null 2>&1; then
+    ollama serve &>/dev/null &
+    sleep 3
+fi
+echo "✅ Ollama running"
+
 # ─── Pull AI Model ───────────────────────────────────────
 echo ""
 echo "🧠 Downloading AI model (llama3.1 — ~4GB, one-time)..."

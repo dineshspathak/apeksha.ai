@@ -60,6 +60,19 @@ if ! command -v ollama &> /dev/null; then
 fi
 echo "✅ Ollama ready"
 
+# ─── Start Ollama ────────────────────────────────────────
+echo ""
+echo "🚀 Starting Ollama..."
+if command -v systemctl &> /dev/null; then
+    sudo systemctl start ollama 2>/dev/null || true
+fi
+# Fallback: start manually in background
+if ! curl -s http://localhost:11434/api/version > /dev/null 2>&1; then
+    ollama serve &>/dev/null &
+    sleep 3
+fi
+echo "✅ Ollama running"
+
 # ─── Pull AI Model ───────────────────────────────────────
 echo ""
 echo "🧠 Downloading AI model (llama3.1 — ~4GB, one-time)..."
