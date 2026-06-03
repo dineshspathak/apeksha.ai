@@ -39,7 +39,7 @@ def is_cloud_available() -> bool:
 
 
 def cloud_chat(messages: list[dict], model: str = None) -> str:
-    """Call Groq API for fast cloud responses."""
+    """Call Groq API for fast cloud responses. Auto-fallback on rate limit."""
     use_model = model or GROQ_MODEL
 
     headers = {
@@ -60,7 +60,15 @@ def cloud_chat(messages: list[dict], model: str = None) -> str:
         if response.status_code == 200:
             data = response.json()
             return data["choices"][0]["message"]["content"]
-        else:
-            return f"Cloud error ({response.status_code}): {response.text[:200]}"
+
+        # Rate limited (429) — fallback to faster 8B model
+        if response.status_code == 429 and use_model != "llama-3.1-8b-instant":
+            payload["model"] = "llama-3.1-8b-instant"
+            response = requests.post(GROQ_URL, json=payload, headers=headers, timeout=30)
+            if response.status_code == 200:
+                data = response.json()
+                return data["choices"][0]["message"]["content"]
+
+        return f"Cloud error ({response.status_code}): {response.text[:200]}"
     except Exception as e:
         return f"Cloud error: {e}"
