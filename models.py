@@ -45,6 +45,24 @@ MODELS = {
         "category": "general",
         "tier": "free",
     },
+    "kalpana": {
+        "display_name": "Kalpana",
+        "meaning": "Imagination",
+        "description": "Generate images from text descriptions",
+        "groq_model": "llama-3.3-70b-versatile",
+        "local_model": "llama3.1",
+        "category": "image",
+        "tier": "free",
+    },
+    "srijan": {
+        "display_name": "Srijan",
+        "meaning": "Creation",
+        "description": "Generate videos from text descriptions",
+        "groq_model": "llama-3.3-70b-versatile",
+        "local_model": "llama3.1",
+        "category": "video",
+        "tier": "pro",
+    },
 }
 
 # Default model

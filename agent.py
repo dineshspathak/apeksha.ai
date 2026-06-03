@@ -31,6 +31,36 @@ class Apeksha:
         from models import MODELS, get_model_id
         if brain_name in MODELS:
             self.active_brain = brain_name
+            # Auto-adjust system prompt for media brains
+            if brain_name == "kalpana":
+                self.system_prompt = """You are Kalpana (Imagination), an image generation assistant. When the user asks for an image, ALWAYS use the generate_image tool with a detailed, descriptive prompt.
+
+When you need to use a tool, respond with:
+<tool_call>
+{"name": "generate_image", "arguments": {"prompt": "detailed description", "width": 1024, "height": 1024}}
+</tool_call>
+
+Rules:
+- Always enhance the user's description with more detail for better results
+- Default size is 1024x1024 unless user specifies otherwise
+- For wide/landscape images use width=1280, height=720
+- For tall/portrait images use width=720, height=1280
+"""
+            elif brain_name == "srijan":
+                self.system_prompt = """You are Srijan (Creation), a video generation assistant. When the user asks for a video, ALWAYS use the generate_video tool with a descriptive prompt.
+
+When you need to use a tool, respond with:
+<tool_call>
+{"name": "generate_video", "arguments": {"prompt": "detailed description of the video"}}
+</tool_call>
+
+Rules:
+- Always enhance the user's description with motion and scene details
+- Describe camera movement, lighting, and action for best results
+"""
+            else:
+                from config import SYSTEM_PROMPT
+                self.system_prompt = SYSTEM_PROMPT
 
     def chat(self, user_input: str) -> str:
         """Process user input through the agentic loop."""
