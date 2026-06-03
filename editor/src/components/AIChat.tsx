@@ -6,6 +6,7 @@ import { useEditorStore, ChatMessage } from "@/store/editorStore";
 
 export function AIChat() {
   const [input, setInput] = useState("");
+  const [activeBrain, setActiveBrain] = useState("buddhi");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { chatMessages, chatLoading, addChatMessage, setChatLoading, clearChat } =
     useEditorStore();
@@ -35,7 +36,7 @@ export function AIChat() {
       const res = await fetch("http://127.0.0.1:5000/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message }),
+        body: JSON.stringify({ message, brain: activeBrain }),
       });
 
       const data = await res.json();
@@ -147,6 +148,18 @@ export function AIChat() {
 
       {/* Input */}
       <div className="p-3 border-t border-editor-border">
+        <select
+          value={activeBrain}
+          onChange={(e) => setActiveBrain(e.target.value)}
+          className="w-full mb-2 px-2 py-1.5 bg-editor-sidebar border border-editor-border rounded text-xs text-gray-300 outline-none focus:border-editor-accent"
+        >
+          <option value="buddhi">🧠 Buddhi — Complex Coding</option>
+          <option value="drishti">⚡ Drishti — Quick Answers</option>
+          <option value="medha">📝 Medha — Writing & Reports</option>
+          <option value="pragya">✨ Pragya — Balanced</option>
+          <option value="kalpana">🎨 Kalpana — Generate Images</option>
+          <option value="srijan">🎬 Srijan — Generate Videos</option>
+        </select>
         <div className="flex items-end gap-2 bg-editor-sidebar rounded-lg border border-editor-border focus-within:border-editor-accent transition p-2">
           <textarea
             value={input}
