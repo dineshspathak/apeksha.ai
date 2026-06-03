@@ -43,10 +43,13 @@ if %ERRORLEVEL% neq 0 (
 )
 echo ✅ Ollama ready
 
-REM ─── Pull AI Model ────────────────────────────────────────
+REM ─── Start Ollama and Pull AI Model ────────────────────
 echo.
-echo 🧠 Downloading AI model (llama3.1 — ~4GB, one-time)...
-ollama pull llama3.1
+echo 🚀 Starting Ollama...
+start /B ollama serve
+timeout /t 3 /nobreak >nul
+echo 🧠 Downloading AI model...
+ollama pull phi3:mini
 echo ✅ AI model ready
 
 REM ─── Setup Python Environment ─────────────────────────────
