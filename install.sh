@@ -52,9 +52,7 @@ echo "✅ Ollama ready"
 echo ""
 echo "🚀 Starting Ollama..."
 brew services start ollama 2>/dev/null || true
-# Wait for Ollama to be ready
 sleep 3
-# If brew services didn't work, try starting manually in background
 if ! curl -s http://localhost:11434/api/version > /dev/null 2>&1; then
     ollama serve &>/dev/null &
     sleep 3
@@ -84,70 +82,59 @@ npm install --silent 2>/dev/null
 cd ..
 echo "✅ Editor ready"
 
-# ─── Create Desktop Shortcut (macOS) ─────────────────────
+# ─── Create macOS App (silent, no terminal) ───────────────
 INSTALL_DIR="$(pwd)"
-SCRIPT_PATH="$INSTALL_DIR/launch.sh"
+OLLAMA_PATH="$(which ollama)"
 
-# Create launch script
-cat > "$SCRIPT_PATH" << EOF
+echo ""
+echo "🖥️  Creating app..."
+
+APP_DIR="/Applications/Apeksha AI.app/Contents/MacOS"
+RES_DIR="/Applications/Apeksha AI.app/Contents/Resources"
+mkdir -p "$APP_DIR"
+mkdir -p "$RES_DIR"
+
+# Copy icon if available
+if [ -f "$INSTALL_DIR/Apeksha.icns" ]; then
+    cp "$INSTALL_DIR/Apeksha.icns" "$RES_DIR/AppIcon.icns"
+fi
+
+# Create silent launcher (no terminal window)
+cat > "$APP_DIR/Apeksha" << LAUNCHER
 #!/bin/bash
-# Apeksha AI — Launch Script
-cd "$INSTALL_DIR"
+DIR="$INSTALL_DIR"
 
 # Start Ollama if not running
 if ! pgrep -x "ollama" > /dev/null 2>&1; then
-    ollama serve &>/dev/null &
+    $OLLAMA_PATH serve &>/dev/null &
     sleep 2
 fi
 
-# Activate Python env and start backend
+# Start backend silently
+cd "\$DIR"
 source venv/bin/activate
+python web_ui.py &>/dev/null &
 
-# Auto-check for updates (silent, background)
-python -c "from updater import check_model_update; m=check_model_update(); print(f'  Model: {m[\"message\"]}') if m.get('update_available') else None" 2>/dev/null
-
-python web_ui.py &
-BACKEND_PID=\$!
-
-# Start editor frontend
-cd editor
+# Start frontend silently
+cd "\$DIR/editor"
 npm run dev &>/dev/null &
-FRONTEND_PID=\$!
-cd ..
 
-# Wait for servers to start
-sleep 3
+# Wait for editor to be ready
+for i in {1..20}; do
+    if curl -s http://localhost:3000 > /dev/null 2>&1; then
+        break
+    fi
+    sleep 1
+done
 
-# Open in browser
+# Open browser
 open "http://localhost:3000"
+LAUNCHER
 
-echo ""
-echo "🙏 Apeksha AI is running!"
-echo "   Editor: http://localhost:3000"
-echo "   Chat:   http://127.0.0.1:5000"
-echo ""
-echo "   Press Ctrl+C to stop"
-
-# Wait
-trap "kill \$BACKEND_PID \$FRONTEND_PID 2>/dev/null; exit" INT TERM
-wait
-EOF
-
-chmod +x "$SCRIPT_PATH"
-
-# ─── Create macOS App (clickable icon) ───────────────────
-APP_DIR="/Applications/Apeksha AI.app/Contents/MacOS"
-mkdir -p "$APP_DIR"
-mkdir -p "/Applications/Apeksha AI.app/Contents/Resources"
-
-cat > "$APP_DIR/Apeksha" << EOF
-#!/bin/bash
-osascript -e 'tell app "Terminal" to do script "cd $INSTALL_DIR && ./launch.sh"'
-EOF
 chmod +x "$APP_DIR/Apeksha"
 
-# Info.plist
-cat > "/Applications/Apeksha AI.app/Contents/Info.plist" << EOF
+# Info.plist (LSUIElement=true means no terminal, runs as background app)
+cat > "/Applications/Apeksha AI.app/Contents/Info.plist" << PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -162,9 +149,19 @@ cat > "/Applications/Apeksha AI.app/Contents/Info.plist" << EOF
     <string>1.0.0</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
+    <key>CFBundleIconFile</key>
+    <string>AppIcon</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0.0</string>
+    <key>LSMinimumSystemVersion</key>
+    <string>12.0</string>
+    <key>LSUIElement</key>
+    <true/>
 </dict>
 </plist>
-EOF
+PLIST
+
+echo "✅ App created in /Applications"
 
 # ─── Done! ────────────────────────────────────────────────
 echo ""
@@ -172,13 +169,8 @@ echo "════════════════════════�
 echo ""
 echo "  🙏 Apeksha AI installed successfully!"
 echo ""
-echo "  To start Apeksha:"
-echo ""
-echo "    Option 1: Double-click 'Apeksha AI' in ~/Applications"
-echo ""
-echo "    Option 2: Run in terminal:"
-echo "              cd $INSTALL_DIR"
-echo "              ./launch.sh"
+echo "  Just double-click 'Apeksha AI' in your Applications."
+echo "  Browser will open automatically. No terminal needed."
 echo ""
 echo "═══════════════════════════════════════════════════════════"
 echo ""
@@ -186,5 +178,5 @@ echo ""
 # Ask if user wants to launch now
 read -p "  🚀 Launch Apeksha now? (y/n): " launch_now
 if [[ "$launch_now" == "y" || "$launch_now" == "Y" ]]; then
-    ./launch.sh
+    open "/Applications/Apeksha AI.app"
 fi
