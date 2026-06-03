@@ -1,4 +1,4 @@
-# 🙏 Apeksha AI Editor
+# Apeksha AI Editor
 
 A commercial-grade, AI-powered code editor that runs locally.
 

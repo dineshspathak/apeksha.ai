@@ -1,7 +1,7 @@
 #!/bin/bash
 # Apeksha AI - One-click setup script
 
-echo "🙏 Setting up Apeksha AI..."
+echo "Setting up Apeksha AI..."
 echo ""
 
 # Check for Python
@@ -50,4 +50,4 @@ echo "     source venv/bin/activate"
 echo "     python main.py          # CLI mode"
 echo "     python web_ui.py        # Web UI mode"
 echo ""
-echo "🙏 Namaste!"
+echo "Namaste!"

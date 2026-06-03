@@ -16,7 +16,7 @@ def main():
     # Welcome banner
     console.print()
     console.print(Panel(
-        f"[bold cyan]🙏 {AGENT_NAME} AI[/bold cyan] [dim]v{AGENT_VERSION}[/dim]\n"
+        f"[bold cyan]{AGENT_NAME} AI[/bold cyan] [dim]v{AGENT_VERSION}[/dim]\n"
         f"[italic]{AGENT_TAGLINE}[/italic]\n\n"
         f"Model: [green]{MODEL}[/green] (via Ollama)\n"
         f"I can build software, search the web, remember things, and learn from your documents.\n\n"
@@ -63,7 +63,7 @@ def main():
         except EOFError:
             break
 
-    console.print(f"\n[dim]{AGENT_NAME} says goodbye! 🙏[/dim]")
+    console.print(f"\n[dim]{AGENT_NAME} says goodbye! [/dim]")
 
 
 def handle_command(command: str, agent: Apeksha, console: Console):
@@ -73,7 +73,7 @@ def handle_command(command: str, agent: Apeksha, console: Console):
     arg = parts[1] if len(parts) > 1 else ""
 
     if cmd in ("/quit", "/exit", "/q"):
-        console.print(f"[dim]{AGENT_NAME} says goodbye! 🙏[/dim]")
+        console.print(f"[dim]{AGENT_NAME} says goodbye! [/dim]")
         raise SystemExit(0)
 
     elif cmd == "/reset":

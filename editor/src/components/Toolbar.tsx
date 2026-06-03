@@ -37,7 +37,7 @@ export function Toolbar() {
       <div className="h-10 bg-editor-sidebar border-b border-editor-border flex items-center px-4 justify-between">
         {/* Left - Brand */}
         <div className="flex items-center gap-2">
-          <span className="text-editor-accent font-semibold text-sm">🙏 Apeksha</span>
+          <span className="text-editor-accent font-semibold text-sm">Apeksha</span>
           <span className="text-xs text-gray-500">AI Editor</span>
         </div>
 

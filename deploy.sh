@@ -2,7 +2,7 @@
 # Apeksha AI - Production Deployment Script
 # Supports: Docker, Railway, Fly.io, or manual VPS
 
-echo "🙏 Apeksha AI — Deployment"
+echo "Apeksha AI — Deployment"
 echo ""
 echo "Choose deployment target:"
 echo "  1) Docker (local or any server)"

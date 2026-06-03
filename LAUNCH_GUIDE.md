@@ -160,7 +160,7 @@ zip -r Apeksha-AI-v1.0.0.zip \
 ### Day 1: Post on Twitter/X
 
 ```
-🙏 Introducing Apeksha AI
+Introducing Apeksha AI
 
 A local AI code editor that writes, debugs, and ships code.
 Runs 100% on your machine. No cloud. No API keys.
@@ -264,5 +264,5 @@ Title: "Show HN: Apeksha – Local AI code editor that builds software"
 - GitHub releases: https://docs.github.com/en/repositories/releasing-projects-on-github
 - Ollama: https://ollama.ai
 
-Good luck, Dinesh! 🙏
+Good luck, Dinesh! 
 Your daughter's name will be known in the AI world.

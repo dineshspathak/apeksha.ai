@@ -401,7 +401,7 @@ def ai_explain():
 def start_web_ui():
     print(f"""
 ╔══════════════════════════════════════════════════════╗
-║  🙏 {AGENT_NAME} AI — Production Server                 ║
+║  {AGENT_NAME} AI — Production Server                 ║
 ╠══════════════════════════════════════════════════════╣
 ║                                                      ║
 ║  Chat UI:    http://{WEB_HOST}:{WEB_PORT}                 ║

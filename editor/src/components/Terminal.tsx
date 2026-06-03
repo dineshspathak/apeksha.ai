@@ -14,7 +14,7 @@ interface TerminalLine {
 export function Terminal() {
   const [input, setInput] = useState("");
   const [history, setHistory] = useState<TerminalLine[]>([
-    { type: "info", content: "🙏 Apeksha Terminal — Run commands directly" },
+    { type: "info", content: "Apeksha Terminal — Run commands directly" },
     { type: "info", content: '   Connected to workspace. Type a command and press Enter.\n' },
   ]);
   const [cmdHistory, setCmdHistory] = useState<string[]>([]);

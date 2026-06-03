@@ -1,11 +1,11 @@
 @echo off
 REM ═══════════════════════════════════════════════════════════════
-REM 🙏 Apeksha AI — Windows Installer
+REM Apeksha AI — Windows Installer
 REM Just double-click this file or run: install-windows.bat
 REM ═══════════════════════════════════════════════════════════════
 
 echo.
-echo   🙏 Apeksha AI Installer (Windows)
+echo   Apeksha AI Installer (Windows)
 echo   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 echo   Setting up your local AI code editor...
 echo.
@@ -71,7 +71,7 @@ echo ✅ Editor ready
 REM ─── Create Launch Script ──────────────────────────────────
 (
 echo @echo off
-echo echo 🙏 Starting Apeksha AI...
+echo echo Starting Apeksha AI...
 echo start /B ollama serve
 echo timeout /t 2 /nobreak ^>nul
 echo call venv\Scripts\activate.bat
@@ -82,7 +82,7 @@ echo cd ..
 echo timeout /t 3 /nobreak ^>nul
 echo start http://localhost:3000
 echo echo.
-echo echo 🙏 Apeksha AI is running!
+echo echo Apeksha AI is running!
 echo echo    Editor: http://localhost:3000
 echo echo    Chat:   http://127.0.0.1:5000
 echo echo.
@@ -97,7 +97,7 @@ powershell -Command "$ws = New-Object -ComObject WScript.Shell; $s = $ws.CreateS
 echo.
 echo ═══════════════════════════════════════════════════════════
 echo.
-echo   🙏 Apeksha AI installed successfully!
+echo   Apeksha AI installed successfully!
 echo.
 echo   A shortcut "Apeksha AI" has been created on your Desktop.
 echo   Double-click it to start Apeksha.

@@ -34,7 +34,7 @@ export default function DownloadPage() {
       {/* Nav */}
       <nav className="flex items-center justify-between px-8 py-4 border-b border-gray-800">
         <a href="/" className="flex items-center gap-2">
-          <span className="text-2xl">🙏</span>
+          <span className="text-2xl"></span>
           <span className="font-bold text-lg">Apeksha AI</span>
         </a>
         <a href="/" className="text-sm text-gray-400 hover:text-white">← Back</a>

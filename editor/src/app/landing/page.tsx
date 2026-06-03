@@ -6,7 +6,7 @@ export default function LandingPage() {
       {/* Navigation */}
       <nav className="flex items-center justify-between px-6 md:px-8 py-4 border-b border-gray-800">
         <div className="flex items-center gap-2">
-          <span className="text-2xl">🙏</span>
+          <span className="text-2xl"></span>
           <span className="font-bold text-lg">Apeksha AI</span>
         </div>
         <div className="flex items-center gap-4 md:gap-6 text-sm text-gray-400">
@@ -236,7 +236,7 @@ export default function LandingPage() {
       <footer className="px-6 md:px-8 py-8 border-t border-gray-800">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <span>🙏</span>
+            <span></span>
             <span className="font-semibold">Apeksha AI</span>
             <span className="text-xs text-gray-600">— Hope that thinks.</span>
           </div>

@@ -3,7 +3,7 @@
 cd "/Users/Dinesh/Downloads/AI"
 
 echo ""
-echo "  🙏 Starting Apeksha AI..."
+echo "  Starting Apeksha AI..."
 echo ""
 
 # Start Ollama if not running
@@ -39,7 +39,7 @@ done
 open "http://localhost:3000"
 
 echo ""
-echo "  🙏 Apeksha AI is running!"
+echo "  Apeksha AI is running!"
 echo ""
 echo "  Open in browser: http://localhost:3000"
 echo ""

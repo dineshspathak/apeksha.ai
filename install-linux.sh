@@ -1,13 +1,13 @@
 #!/bin/bash
 # ═══════════════════════════════════════════════════════════════
-# 🙏 Apeksha AI — Linux Installer
+# Apeksha AI — Linux Installer
 # Just run: ./install-linux.sh
 # ═══════════════════════════════════════════════════════════════
 
 set -e
 
 echo ""
-echo "  🙏 Apeksha AI Installer (Linux)"
+echo "  Apeksha AI Installer (Linux)"
 echo "  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "  Setting up your local AI code editor..."
 echo ""
@@ -128,7 +128,7 @@ elif command -v open &> /dev/null; then
 fi
 
 echo ""
-echo "🙏 Apeksha AI is running!"
+echo "Apeksha AI is running!"
 echo "   Editor: http://localhost:3000"
 echo "   Chat:   http://127.0.0.1:5000"
 echo ""
@@ -157,7 +157,7 @@ EOF
 echo ""
 echo "═══════════════════════════════════════════════════════════"
 echo ""
-echo "  🙏 Apeksha AI installed successfully!"
+echo "  Apeksha AI installed successfully!"
 echo ""
 echo "  To start:"
 echo "    ./launch.sh"

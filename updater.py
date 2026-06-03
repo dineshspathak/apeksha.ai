@@ -273,6 +273,6 @@ if __name__ == "__main__":
         print()
     else:
         # Full update
-        print("\n🙏 Apeksha AI — Auto Update\n")
+        print("\nApeksha AI — Auto Update\n")
         result = run_full_update()
         print(f"\n{result}\n")

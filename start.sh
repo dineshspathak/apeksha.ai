@@ -1,7 +1,7 @@
 #!/bin/bash
 # Apeksha AI - Start Everything
 
-echo "🙏 Starting Apeksha AI..."
+echo "Starting Apeksha AI..."
 echo ""
 
 # Check Ollama

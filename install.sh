@@ -1,13 +1,13 @@
 #!/bin/bash
 # ═══════════════════════════════════════════════════════════════
-# 🙏 Apeksha AI — One-Click Installer
+# Apeksha AI — One-Click Installer
 # Just run: ./install.sh
 # ═══════════════════════════════════════════════════════════════
 
 set -e
 
 echo ""
-echo "  🙏 Apeksha AI Installer"
+echo "  Apeksha AI Installer"
 echo "  ━━━━━━━━━━━━━━━━━━━━━━━"
 echo "  Setting up your local AI code editor..."
 echo ""
@@ -177,7 +177,7 @@ echo "✅ App created in /Applications"
 echo ""
 echo "═══════════════════════════════════════════════════════════"
 echo ""
-echo "  🙏 Apeksha AI installed successfully!"
+echo "  Apeksha AI installed successfully!"
 echo ""
 echo "  Just double-click 'Apeksha AI' in your Applications."
 echo "  Browser will open automatically. No terminal needed."

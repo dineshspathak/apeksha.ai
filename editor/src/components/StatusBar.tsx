@@ -11,7 +11,7 @@ export function StatusBar() {
     <div className="h-6 bg-editor-accent flex items-center justify-between px-3 text-white text-[11px]">
       {/* Left */}
       <div className="flex items-center gap-3">
-        <span>🙏 Apeksha AI</span>
+        <span>Apeksha AI</span>
         <span>⟡ Local Mode</span>
       </div>
 

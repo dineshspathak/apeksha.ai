@@ -1,4 +1,4 @@
-# 🙏 Apeksha AI
+# Apeksha AI
 
 **Hope that thinks.**
 
