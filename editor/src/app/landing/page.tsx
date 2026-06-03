@@ -43,7 +43,7 @@ export default function LandingPage() {
             Download Free →
           </a>
           <a
-            href="https://github.com"
+            href="https://github.com/dineshspathak/apeksha.ai"
             className="w-full md:w-auto px-8 py-3 border border-gray-700 rounded-lg hover:border-gray-500 transition text-gray-300 text-center"
           >
             ⭐ Star on GitHub

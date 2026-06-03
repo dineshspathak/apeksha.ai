@@ -12,8 +12,8 @@ export default function DownloadPage() {
   const handleDownload = () => {
     // Track download (add analytics later)
     setDownloaded(true);
-    // Redirect to GitHub release or direct download
-    window.open("https://github.com/YOUR_USERNAME/apeksha/releases/latest", "_blank");
+    // Redirect to GitHub repo (download as ZIP)
+    window.open("https://github.com/dineshspathak/apeksha.ai/archive/refs/heads/main.zip", "_blank");
   };
 
   return (
