@@ -21,7 +21,14 @@ def generate_image(prompt: str, width: int = 1024, height: int = 1024) -> str:
     Returns the file path of the saved image.
     """
     try:
-        # Pollinations.ai simple URL-based API
+        import ssl
+        import urllib.request
+
+        # Fix SSL on macOS
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+
         encoded_prompt = urllib.parse.quote(prompt)
         url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width={width}&height={height}&nologo=true"
 
@@ -33,8 +40,11 @@ def generate_image(prompt: str, width: int = 1024, height: int = 1024) -> str:
         filename = f"image_{timestamp}.png"
         filepath = output_dir / filename
 
-        # Download the generated image
-        urllib.request.urlretrieve(url, str(filepath))
+        # Download with SSL fix
+        req = urllib.request.Request(url)
+        response = urllib.request.urlopen(req, context=ctx, timeout=60)
+        with open(filepath, 'wb') as f:
+            f.write(response.read())
 
         return f"✅ Image generated: {filepath}\nPrompt: {prompt}\nSize: {width}x{height}"
     except Exception as e:
@@ -49,6 +59,13 @@ def generate_video(prompt: str) -> str:
     Returns the file path of the saved video.
     """
     try:
+        import ssl
+        import urllib.request
+
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+
         encoded_prompt = urllib.parse.quote(prompt)
         url = f"https://video.pollinations.ai/{encoded_prompt}"
 
@@ -60,8 +77,10 @@ def generate_video(prompt: str) -> str:
         filename = f"video_{timestamp}.mp4"
         filepath = output_dir / filename
 
-        # Download the generated video
-        urllib.request.urlretrieve(url, str(filepath))
+        req = urllib.request.Request(url)
+        response = urllib.request.urlopen(req, context=ctx, timeout=120)
+        with open(filepath, 'wb') as f:
+            f.write(response.read())
 
         return f"✅ Video generated: {filepath}\nPrompt: {prompt}"
     except Exception as e:
