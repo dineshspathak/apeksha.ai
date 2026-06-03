@@ -136,9 +136,9 @@ EOF
 chmod +x "$SCRIPT_PATH"
 
 # ─── Create macOS App (clickable icon) ───────────────────
-APP_DIR="$HOME/Applications/Apeksha AI.app/Contents/MacOS"
+APP_DIR="/Applications/Apeksha AI.app/Contents/MacOS"
 mkdir -p "$APP_DIR"
-mkdir -p "$HOME/Applications/Apeksha AI.app/Contents/Resources"
+mkdir -p "/Applications/Apeksha AI.app/Contents/Resources"
 
 cat > "$APP_DIR/Apeksha" << EOF
 #!/bin/bash
@@ -147,7 +147,7 @@ EOF
 chmod +x "$APP_DIR/Apeksha"
 
 # Info.plist
-cat > "$HOME/Applications/Apeksha AI.app/Contents/Info.plist" << EOF
+cat > "/Applications/Apeksha AI.app/Contents/Info.plist" << EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
