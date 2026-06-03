@@ -59,11 +59,21 @@ if ! curl -s http://localhost:11434/api/version > /dev/null 2>&1; then
 fi
 echo "✅ Ollama running"
 
-# ─── Pull AI Model ───────────────────────────────────────
+# ─── Pull AI Model (auto-detect best for this hardware) ──
 echo ""
-echo "🧠 Downloading AI model (llama3.1 — ~4GB, one-time)..."
+RAM_GB=$(sysctl -n hw.memsize | awk '{print int($1/1024/1024/1024)}')
+echo "  Detected: ${RAM_GB}GB RAM"
+
+if [ "$RAM_GB" -ge 16 ]; then
+    AI_MODEL="llama3.1"
+    echo "🧠 Downloading AI model (llama3.1 — best quality for ${RAM_GB}GB)..."
+else
+    AI_MODEL="phi3:mini"
+    echo "🧠 Downloading AI model (phi3:mini — fast for ${RAM_GB}GB)..."
+fi
+
 echo "   This may take a few minutes on first install..."
-ollama pull llama3.1
+ollama pull $AI_MODEL
 echo "✅ AI model ready"
 
 # ─── Setup Python Virtual Environment ────────────────────

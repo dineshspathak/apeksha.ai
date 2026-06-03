@@ -90,12 +90,25 @@ class Apeksha:
         yield ("response", response_text)
 
     def _call_llm(self) -> str:
-        """Call Ollama and return the response."""
+        """Call LLM — cloud (fast) or local (private)."""
         messages = [{"role": "system", "content": self.system_prompt}]
         messages.extend(self.short_memory.get_messages())
 
+        # Try cloud first (fast)
+        from cloud_llm import is_cloud_available, cloud_chat
+        if is_cloud_available():
+            try:
+                return cloud_chat(messages)
+            except Exception as e:
+                pass  # Fall back to local
+
+        # Local fallback
         try:
-            response = ollama.chat(model=self.model, messages=messages)
+            response = ollama.chat(
+                model=self.model,
+                messages=messages,
+                options={"num_ctx": 4096},
+            )
             return response["message"]["content"]
         except Exception as e:
             return f"Error communicating with Ollama: {e}"

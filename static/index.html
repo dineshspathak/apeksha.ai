@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Apeksha AI</title>
+    <link rel="icon" type="image/png" href="/static/logo.png">
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
@@ -11,26 +12,16 @@
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
-                <h1>🙏 Apeksha</h1>
-                <span class="tagline">Hope that thinks.</span>
+                <img src="/static/logo.png" alt="Apeksha AI" style="width:48px;height:48px;margin-bottom:8px;border-radius:8px;">
+                <h1>Apeksha AI</h1>
+                <span class="tagline">Continuous Learning & Infinite Possibility</span>
             </div>
             <button class="new-chat-btn" onclick="resetChat()">+ New Chat</button>
             <div class="sidebar-info">
                 <div class="status-item">
-                    <span class="label">Model:</span>
-                    <span class="value" id="model-name">Loading...</span>
+                    <span class="label">Status:</span>
+                    <span class="value" id="model-name">● Online</span>
                 </div>
-                <div class="status-item">
-                    <span class="label">Memories:</span>
-                    <span class="value" id="memory-count">0</span>
-                </div>
-                <div class="status-item">
-                    <span class="label">Knowledge:</span>
-                    <span class="value" id="knowledge-count">0 chunks</span>
-                </div>
-            </div>
-            <div class="sidebar-actions">
-                <button onclick="ingestKnowledge()">📚 Ingest Documents</button>
             </div>
         </aside>
 
@@ -38,8 +29,9 @@
         <main class="chat-area">
             <div class="messages" id="messages">
                 <div class="welcome-message">
-                    <h2>🙏 Namaste! I'm Apeksha.</h2>
-                    <p>I'm your local AI assistant. I can build software, search the web, remember things, and learn from your documents.</p>
+                    <img src="/static/logo.png" alt="Apeksha AI" style="width:80px;height:80px;margin:0 auto 16px;display:block;border-radius:12px;">
+                    <h2>Hello! I'm Apeksha.</h2>
+                    <p>Your AI assistant. I can build software, answer questions, search the web, and learn from your documents.</p>
                     <div class="suggestions">
                         <button onclick="sendSuggestion('Build a React todo app with local storage')">Build a React todo app</button>
                         <button onclick="sendSuggestion('Create a Python REST API with Flask')">Create a Flask API</button>

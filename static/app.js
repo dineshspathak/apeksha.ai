@@ -13,11 +13,9 @@ async function fetchStatus() {
     try {
         const res = await fetch('/api/status');
         const data = await res.json();
-        document.getElementById('model-name').textContent = data.model || 'Unknown';
-        document.getElementById('memory-count').textContent = data.long_term_memories || 0;
-        document.getElementById('knowledge-count').textContent = (data.knowledge_chunks || 0) + ' chunks';
+        document.getElementById('model-name').textContent = '● Online';
     } catch (e) {
-        console.error('Failed to fetch status:', e);
+        document.getElementById('model-name').textContent = '○ Offline';
     }
 }
 
@@ -154,8 +152,9 @@ async function resetChat() {
         await fetch('/api/reset', { method: 'POST' });
         messagesContainer.innerHTML = `
             <div class="welcome-message">
-                <h2>🙏 Namaste! I'm Apeksha.</h2>
-                <p>I'm your local AI assistant. I can build software, search the web, remember things, and learn from your documents.</p>
+                <img src="/static/logo.png" alt="Apeksha AI" style="width:80px;height:80px;margin:0 auto 16px;display:block;border-radius:12px;">
+                <h2>Hello! I'm Apeksha.</h2>
+                <p>Your AI assistant. I can build software, answer questions, search the web, and learn from your documents.</p>
                 <div class="suggestions">
                     <button onclick="sendSuggestion('Build a React todo app with local storage')">Build a React todo app</button>
                     <button onclick="sendSuggestion('Create a Python REST API with Flask')">Create a Flask API</button>
