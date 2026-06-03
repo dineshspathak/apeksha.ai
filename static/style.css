@@ -365,3 +365,25 @@ body {
         max-width: 85%;
     }
 }
+
+/* Brain Selector */
+#brain-selector {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 0.8rem;
+    padding: 6px 10px;
+    cursor: pointer;
+    outline: none;
+    min-width: 180px;
+}
+
+#brain-selector:focus {
+    border-color: var(--accent);
+}
+
+#brain-selector option {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+}

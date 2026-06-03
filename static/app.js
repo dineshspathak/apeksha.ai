@@ -5,9 +5,14 @@ const userInput = document.getElementById('user-input');
 const sendBtn = document.getElementById('send-btn');
 
 let isProcessing = false;
+let activeBrain = 'buddhi';
 
 // Load status on startup
 fetchStatus();
+
+function switchBrain(brain) {
+    activeBrain = brain;
+}
 
 async function fetchStatus() {
     try {
@@ -59,7 +64,7 @@ async function sendMessage() {
         const res = await fetch('/api/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message }),
+            body: JSON.stringify({ message, brain: activeBrain }),
         });
 
         const data = await res.json();
