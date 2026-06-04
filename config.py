@@ -12,6 +12,7 @@ AGENT_TAGLINE = "Hope that thinks."
 # ═══════════════════════════════════════════════════════════════
 # Options: llama3.1, deepseek-coder-v2:16b, qwen2.5:14b, mistral, codellama
 # Auto-detect best model based on system RAM
+import os
 import subprocess
 import platform
 

@@ -46,7 +46,7 @@ def _get_key():
     env_key = os.environ.get("GROQ_API_KEY", "")
     if env_key and env_key != "PASTE_YOUR_KEY_HERE":
         return env_key
-    return base64.b64decode(_BUILT_IN).decode()
+    return ""
 
 GROQ_API_KEY = _get_key()
 GROQ_MODEL = "llama-3.3-70b-versatile"
