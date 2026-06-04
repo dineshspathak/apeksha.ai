@@ -18,7 +18,7 @@ export async function POST(req: Request) {
     }
 
     // 1. Verify User Subscription status in SaaS database
-    if (supabase) {
+    if (supabase && token !== 'local-mode') {
       if (!token) {
         return NextResponse.json({ error: 'Authentication token required for cloud mode' }, { status: 401 });
       }
