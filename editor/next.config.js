@@ -1,7 +1,9 @@
+const isVercel = process.env.VERCEL === '1';
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  output: 'export',
+  ...(isVercel ? {} : { output: 'export' }),
   images: {
     unoptimized: true,
   },
