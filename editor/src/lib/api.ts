@@ -3,7 +3,7 @@
  * Centralized API calls to the backend.
  */
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:53702";
 
 class ApekshaAPI {
   private baseUrl: string;

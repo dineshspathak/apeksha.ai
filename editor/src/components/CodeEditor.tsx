@@ -78,7 +78,7 @@ export function CodeEditor() {
         ? `Edit this code according to the instruction. Only return the modified code, no explanations.\n\nInstruction: ${instruction}\n\nCode:\n${selectedCode}`
         : `Generate code for the following instruction. Only return the code, no explanations.\n\nInstruction: ${instruction}`;
 
-      const res = await fetch("http://127.0.0.1:5000/api/chat", {
+      const res = await fetch("http://127.0.0.1:53702/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: prompt }),

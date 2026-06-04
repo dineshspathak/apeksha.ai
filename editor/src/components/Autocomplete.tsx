@@ -5,7 +5,7 @@
  * Registers with Monaco to show inline AI suggestions as you type.
  */
 
-const API_URL = "http://127.0.0.1:5000";
+const API_URL = "http://127.0.0.1:53702";
 
 let debounceTimer: NodeJS.Timeout | null = null;
 

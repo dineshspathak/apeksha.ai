@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { useEditorStore, FileNode } from "@/store/editorStore";
 
-const API_URL = "http://127.0.0.1:5000";
+const API_URL = "http://127.0.0.1:53702";
 
 export function Sidebar() {
   const { files, setFiles, openFile, activeFile, updateFileContent } = useEditorStore();

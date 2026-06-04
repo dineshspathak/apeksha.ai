@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { Terminal as TerminalIcon, X } from "lucide-react";
 import { useEditorStore } from "@/store/editorStore";
 
-const API_URL = "http://127.0.0.1:5000";
+const API_URL = "http://127.0.0.1:53702";
 
 interface TerminalLine {
   type: "input" | "output" | "error" | "info";

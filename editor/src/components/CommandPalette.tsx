@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { Search, File, Command } from "lucide-react";
 import { useEditorStore } from "@/store/editorStore";
 
-const API_URL = "http://127.0.0.1:5000";
+const API_URL = "http://127.0.0.1:53702";
 
 interface CommandPaletteProps {
   onClose: () => void;

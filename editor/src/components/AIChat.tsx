@@ -33,7 +33,7 @@ export function AIChat() {
 
     try {
       // Call Apeksha AI backend
-      const res = await fetch("http://127.0.0.1:5000/api/chat", {
+      const res = await fetch("http://127.0.0.1:53702/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message, brain: activeBrain }),
