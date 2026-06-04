@@ -30,13 +30,9 @@ export async function POST(req: Request) {
         .eq('license_key', token)
         .single();
 
+      // Check if user exists in the database
       if (dbError || !userProfile) {
         return NextResponse.json({ error: 'Invalid license key or token' }, { status: 401 });
-      }
-
-      // Check if subscription is active
-      if (userProfile.subscription_status !== 'active') {
-        return NextResponse.json({ error: 'Inactive subscription. Please upgrade your plan.' }, { status: 402 });
       }
     }
 
