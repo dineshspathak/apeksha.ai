@@ -67,7 +67,8 @@ PLANS = {
 # SUBSCRIPTION MANAGEMENT (File-based for MVP)
 # ═══════════════════════════════════════════════════════════════
 
-SUBSCRIPTIONS_FILE = Path("./apeksha_data/subscriptions.json")
+DATA_DIR = Path.home() / ".apeksha_data"
+SUBSCRIPTIONS_FILE = DATA_DIR / "subscriptions.json"
 
 
 def _load_subscriptions() -> dict:

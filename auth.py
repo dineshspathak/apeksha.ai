@@ -10,8 +10,9 @@ from flask import request, jsonify
 
 
 # User database (JSON file for simplicity - use PostgreSQL in production)
-USERS_FILE = Path("./apeksha_data/users.json")
-TOKENS_FILE = Path("./apeksha_data/tokens.json")
+DATA_DIR = Path.home() / ".apeksha_data"
+USERS_FILE = DATA_DIR / "users.json"
+TOKENS_FILE = DATA_DIR / "tokens.json"
 
 
 def _ensure_data_dir():
