@@ -80,7 +80,8 @@ def _get_active_token() -> str:
     except:
         pass
 
-    return ""
+    # Default fallback to local-mode token for unauthenticated desktop runs
+    return "local-mode"
 
 
 def cloud_chat(messages: list[dict], model: str = None) -> str:

@@ -43,19 +43,34 @@ export async function POST(req: Request) {
     }
 
     // 3. Forward request to Groq Cloud API
-    const response = await fetch(GROQ_URL, {
+    const payload = {
+      model: model || 'llama-3.3-70b-versatile',
+      messages: messages,
+      temperature: 0.7,
+      max_tokens: 4096,
+    };
+
+    let response = await fetch(GROQ_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${groqKey}`,
       },
-      body: JSON.stringify({
-        model: model || 'llama-3.3-70b-versatile',
-        messages: messages,
-        temperature: 0.7,
-        max_tokens: 4096,
-      }),
+      body: JSON.stringify(payload),
     });
+
+    // Fallback if rate limited (429)
+    if (response.status === 429 && payload.model !== 'llama-3.1-8b-instant') {
+      payload.model = 'llama-3.1-8b-instant';
+      response = await fetch(GROQ_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${groqKey}`,
+        },
+        body: JSON.stringify(payload),
+      });
+    }
 
     if (!response.ok) {
       const errorText = await response.text();
