@@ -14,12 +14,29 @@ from updater import check_model_update, check_software_update, auto_update_model
 from models import list_models, get_model_info
 from config import WEB_HOST, WEB_PORT, AGENT_NAME
 
-app = Flask(__name__, static_folder="static")
+import sys
+if getattr(sys, 'frozen', False):
+    BASE_DIR = sys._MEIPASS
+else:
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Determine the static directory (check if compiled 'dist' exists, otherwise default to local 'static')
+DIST_DIR = os.path.join(BASE_DIR, "dist")
+if not os.path.exists(DIST_DIR):
+    DIST_DIR = os.path.join(BASE_DIR, "static")
+
+app = Flask(__name__, static_folder=DIST_DIR, static_url_path="")
 CORS(app)
 
 # Global instances
 agent = Apeksha()
-file_mgr = FileManager(workspace_root=os.environ.get("APEKSHA_WORKSPACE", "./workspace"))
+
+if getattr(sys, 'frozen', False):
+    default_workspace = os.path.join(os.path.expanduser("~"), "ApekshaWorkspace")
+else:
+    default_workspace = "./workspace"
+
+file_mgr = FileManager(workspace_root=os.environ.get("APEKSHA_WORKSPACE", default_workspace))
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -28,12 +45,22 @@ file_mgr = FileManager(workspace_root=os.environ.get("APEKSHA_WORKSPACE", "./wor
 
 @app.route("/")
 def index():
-    return send_from_directory("static", "index.html")
+    return send_from_directory(DIST_DIR, "index.html")
 
 
-@app.route("/static/<path:filename>")
-def serve_static(filename):
-    return send_from_directory("static", filename)
+@app.route("/editor")
+def editor_page():
+    return send_from_directory(DIST_DIR, "editor.html")
+
+
+@app.route("/landing")
+def landing_page():
+    return send_from_directory(DIST_DIR, "landing.html")
+
+
+@app.route("/download")
+def download_page():
+    return send_from_directory(DIST_DIR, "download.html")
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -435,6 +462,16 @@ def start_web_ui():
 ║                                                      ║
 ╚══════════════════════════════════════════════════════╝
     """)
+    import webbrowser
+    import threading
+    import time
+
+    def open_browser():
+        time.sleep(1.5)
+        webbrowser.open(f"http://127.0.0.1:{WEB_PORT}")
+
+    if not getattr(sys, 'frozen', False):
+        threading.Thread(target=open_browser, daemon=True).start()
     app.run(host=WEB_HOST, port=WEB_PORT, debug=False)
 
 

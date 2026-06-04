@@ -1,0 +1,74 @@
+import { NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+
+// Initialize Supabase client if keys are present
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+const supabase = supabaseUrl && supabaseServiceKey ? createClient(supabaseUrl, supabaseServiceKey) : null;
+
+const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
+
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+    const { messages, model, token } = body;
+
+    if (!messages || !Array.isArray(messages)) {
+      return NextResponse.json({ error: 'Invalid messages array' }, { status: 400 });
+    }
+
+    // 1. Verify User Subscription status in SaaS database
+    if (supabase) {
+      if (!token) {
+        return NextResponse.json({ error: 'Authentication token required for cloud mode' }, { status: 401 });
+      }
+
+      // Query Supabase user profile by session token/license key
+      const { data: userProfile, error: dbError } = await supabase
+        .from('profiles')
+        .select('subscription_status, token_usage')
+        .eq('license_key', token)
+        .single();
+
+      if (dbError || !userProfile) {
+        return NextResponse.json({ error: 'Invalid license key or token' }, { status: 401 });
+      }
+
+      // Check if subscription is active
+      if (userProfile.subscription_status !== 'active') {
+        return NextResponse.json({ error: 'Inactive subscription. Please upgrade your plan.' }, { status: 402 });
+      }
+    }
+
+    // 2. Fetch Master Groq Key from server environment
+    const groqKey = process.env.GROQ_API_KEY;
+    if (!groqKey) {
+      return NextResponse.json({ error: 'Server configuration error: Groq API key is missing' }, { status: 500 });
+    }
+
+    // 3. Forward request to Groq Cloud API
+    const response = await fetch(GROQ_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${groqKey}`,
+      },
+      body: JSON.stringify({
+        model: model || 'llama-3.3-70b-versatile',
+        messages: messages,
+        temperature: 0.7,
+        max_tokens: 4096,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      return NextResponse.json({ error: `Groq API Error: ${errorText}` }, { status: response.status });
+    }
+
+    const data = await response.json();
+    return NextResponse.json({ content: data.choices[0].message.content });
+  } catch (error: any) {
+    return NextResponse.json({ error: `SaaS serverless error: ${error.message}` }, { status: 500 });
+  }
+}

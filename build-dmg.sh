@@ -10,13 +10,14 @@ echo ""
 
 APP_NAME="Apeksha AI"
 DMG_NAME="Apeksha-AI-Installer"
-APP_PATH="/Applications/$APP_NAME.app"
+DIR="$(cd "$(dirname "$0")" && pwd)"
+APP_PATH="$DIR/release-builds/Apeksha AI-darwin-arm64/Apeksha AI.app"
 DMG_DIR="/tmp/dmg_build"
 DMG_OUTPUT="$HOME/Desktop/$DMG_NAME.dmg"
 
 # Check app exists
 if [ ! -d "$APP_PATH" ]; then
-    echo "  Error: Run install.sh first to create the app."
+    echo "  Error: Run python3 build-distribution.py first to compile the app."
     exit 1
 fi
 

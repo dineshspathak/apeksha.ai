@@ -104,14 +104,32 @@ def write_file(path: str, content: str) -> str:
         return f"Write error: {e}"
 
 
-def create_project(name: str, structure: dict) -> str:
+def create_project(name: str, structure) -> str:
     """Create an entire project with multiple files at once."""
     try:
+        if isinstance(structure, str):
+            try:
+                structure = json.loads(structure)
+            except Exception:
+                import ast
+                try:
+                    structure = ast.literal_eval(structure)
+                except Exception:
+                    return f"Project creation error: 'structure' must be a dictionary or a valid JSON string representing a dictionary."
+
+        if not isinstance(structure, dict):
+            return f"Project creation error: 'structure' must be a dictionary, got {type(structure).__name__}"
+
         project_path = Path(name).expanduser()
         project_path.mkdir(parents=True, exist_ok=True)
 
         created_files = []
         for file_path, content in structure.items():
+            if isinstance(content, dict):
+                content = content.get("content", content.get("code", json.dumps(content)))
+            elif not isinstance(content, str):
+                content = str(content)
+
             full_path = project_path / file_path
             full_path.parent.mkdir(parents=True, exist_ok=True)
             full_path.write_text(content, encoding="utf-8")

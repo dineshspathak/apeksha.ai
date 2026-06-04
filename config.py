@@ -47,14 +47,21 @@ OLLAMA_URL = "http://localhost:11434"
 # ═══════════════════════════════════════════════════════════════
 # MEMORY
 # ═══════════════════════════════════════════════════════════════
-MAX_HISTORY = 50
-CHROMA_PERSIST_DIR = "./apeksha_memory"
-EMBEDDING_MODEL = "all-MiniLM-L6-v2"
+import sys
+from pathlib import Path
 
-# ═══════════════════════════════════════════════════════════════
-# KNOWLEDGE BASE (RAG)
-# ═══════════════════════════════════════════════════════════════
-KNOWLEDGE_DIR = "./knowledge"
+# Setup paths based on whether app is compiled or in development mode
+if getattr(sys, 'frozen', False):
+    USER_DATA_DIR = Path.home() / ".apeksha_ai"
+    USER_DATA_DIR.mkdir(parents=True, exist_ok=True)
+    CHROMA_PERSIST_DIR = str(USER_DATA_DIR / "apeksha_memory")
+    KNOWLEDGE_DIR = str(USER_DATA_DIR / "knowledge")
+else:
+    CHROMA_PERSIST_DIR = "./apeksha_memory"
+    KNOWLEDGE_DIR = "./knowledge"
+
+MAX_HISTORY = 50
+EMBEDDING_MODEL = "all-MiniLM-L6-v2"
 SUPPORTED_EXTENSIONS = [".txt", ".md", ".py", ".js", ".ts", ".pdf", ".docx", ".html", ".json", ".csv"]
 CHUNK_SIZE = 500
 CHUNK_OVERLAP = 50
@@ -76,19 +83,20 @@ TOOL_TIMEOUT = 120
 # ═══════════════════════════════════════════════════════════════
 SYSTEM_PROMPT = f"""You are Apeksha, a helpful AI coding assistant. Be concise and direct.
 
-When you need to use a tool, respond with:
+When you need to use a tool, you MUST respond ONLY with a JSON tool call wrapped in <tool_call> tags. Do NOT use XML tags like <write_file> or <generate_image>.
+
+Format:
 <tool_call>
 {{"name": "tool_name", "arguments": {{"arg1": "value1"}}}}
 </tool_call>
 
-Tools: web_search(query), calculate(expression), run_python(code), run_shell(command, working_dir), read_file(path), write_file(path, content), edit_file(path, old_text, new_text), create_project(name, structure), list_files(directory), remember(text), recall(query), search_knowledge(query), generate_image(prompt, width, height), generate_video(prompt)
+Tools: web_search(query), calculate(expression), run_python(code), run_shell(command, working_dir), read_file(path), write_file(path, content), edit_file(path, old_text, new_text), create_project(name, structure) where structure is a dict matching {{"filename": "content"}}, list_files(directory), remember(text), recall(query), search_knowledge(query), generate_image(prompt, width, height), generate_video(prompt)
 
 Rules:
+- ALWAYS use the <tool_call> JSON format to call tools (including write_file, create_project, and generate_image). NEVER output direct XML tags like <write_file> or <generate_image>.
 - Be concise, no unnecessary explanation
-- Use tools to create files, don't just show code
+- Use tools to create/edit files, don't just print or show code
 - Fix errors if you see them
-- For images: use generate_image with a detailed prompt
-- For videos: use generate_video with a descriptive prompt
 - ALWAYS write production-quality, well-designed code
 - For HTML/CSS: use modern styling, gradients, animations, responsive design
 - Include Tailwind CDN or inline CSS that looks professional

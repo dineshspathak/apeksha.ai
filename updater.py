@@ -49,7 +49,12 @@ RECOMMENDED_MODELS = [
 
 # GitHub repo for software updates
 GITHUB_REPO = "dineshspathak/apeksha.ai"
-VERSION_FILE = Path("./version.json")
+
+import sys
+if getattr(sys, 'frozen', False):
+    VERSION_FILE = Path(sys._MEIPASS) / "version.json"
+else:
+    VERSION_FILE = Path(__file__).parent / "version.json"
 
 
 def get_system_ram_gb() -> int:

@@ -46,75 +46,96 @@ def _hash_password(password: str) -> str:
     return hashlib.sha256(password.encode()).hexdigest()
 
 
-def _generate_token() -> str:
-    return secrets.token_urlsafe(32)
+import requests
 
+SAAS_API_URL = "https://apeksha-ai.vercel.app/api"
 
 def signup(name: str, email: str, password: str) -> dict:
-    """Create a new user."""
-    users = _load_users()
-
-    # Check if email exists
-    for user in users:
-        if user["email"] == email:
-            return {"error": "Email already registered"}
-
-    user_id = secrets.token_hex(8)
-    user = {
-        "id": user_id,
-        "name": name,
-        "email": email,
-        "password": _hash_password(password),
-        "plan": "free",
-        "created_at": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "usage": {"messages": 0, "projects": 0},
-    }
-
-    users.append(user)
-    _save_users(users)
-
-    # Generate token
-    token = _generate_token()
-    tokens = _load_tokens()
-    tokens[token] = {"user_id": user_id, "created_at": time.time()}
-    _save_tokens(tokens)
-
-    return {
-        "token": token,
-        "user": {
-            "id": user_id,
-            "name": name,
+    """Create a new user on the SaaS server."""
+    try:
+        response = requests.post(f"{SAAS_API_URL}/auth/signup", json={
             "email": email,
-            "plan": "free",
-            "createdAt": user["created_at"],
-        },
-    }
-
-
-def login(email: str, password: str) -> dict:
-    """Authenticate user."""
-    users = _load_users()
-    password_hash = _hash_password(password)
-
-    for user in users:
-        if user["email"] == email and user["password"] == password_hash:
-            token = _generate_token()
+            "password": password,
+            "name": name
+        }, timeout=15)
+        
+        if response.status_code == 200:
+            res_data = response.json()
+            token = res_data["token"]
+            
+            # Save token locally to stay logged in
             tokens = _load_tokens()
-            tokens[token] = {"user_id": user["id"], "created_at": time.time()}
+            tokens[token] = {
+                "user_id": email,
+                "email": email,
+                "name": name,
+                "created_at": time.time(),
+                "plan": "free"
+            }
             _save_tokens(tokens)
-
+            
             return {
                 "token": token,
                 "user": {
-                    "id": user["id"],
-                    "name": user["name"],
-                    "email": user["email"],
-                    "plan": user.get("plan", "free"),
-                    "createdAt": user["created_at"],
-                },
+                    "id": email,
+                    "name": name,
+                    "email": email,
+                    "plan": "free",
+                    "createdAt": time.strftime("%Y-%m-%dT%H:%M:%SZ")
+                }
             }
+        else:
+            try:
+                err_data = response.json()
+                return {"error": err_data.get("error", "Signup failed")}
+            except:
+                return {"error": "Signup failed on cloud server"}
+    except Exception as e:
+        return {"error": f"SaaS authentication error: {e}"}
 
-    return {"error": "Invalid email or password"}
+
+def login(email: str, password: str) -> dict:
+    """Authenticate user with the SaaS server."""
+    try:
+        response = requests.post(f"{SAAS_API_URL}/auth/login", json={
+            "email": email,
+            "password": password
+        }, timeout=15)
+        
+        if response.status_code == 200:
+            res_data = response.json()
+            token = res_data["token"]
+            plan = res_data.get("subscription_status", "free")
+            
+            # Save token locally to stay logged in
+            tokens = _load_tokens()
+            tokens[token] = {
+                "user_id": email,
+                "email": email,
+                "name": res_data.get("name", email.split("@")[0]),
+                "created_at": time.time(),
+                "plan": plan
+            }
+            _save_tokens(tokens)
+            
+            return {
+                "token": token,
+                "user": {
+                    "id": email,
+                    "name": res_data.get("name", email.split("@")[0]),
+                    "email": email,
+                    "plan": plan,
+                    "createdAt": time.strftime("%Y-%m-%dT%H:%M:%SZ")
+                }
+            }
+        else:
+            try:
+                err_data = response.json()
+                return {"error": err_data.get("error", "Invalid email or password")}
+            except:
+                return {"error": "Invalid email or password"}
+    except Exception as e:
+        return {"error": f"SaaS authentication error: {e}"}
 
 
 def verify_token(token: str) -> dict | None:
@@ -128,17 +149,14 @@ def verify_token(token: str) -> dict | None:
     if not token_data:
         return None
 
-    users = _load_users()
-    for user in users:
-        if user["id"] == token_data["user_id"]:
-            return {
-                "id": user["id"],
-                "name": user["name"],
-                "email": user["email"],
-                "plan": user.get("plan", "free"),
-            }
-
-    return None
+    # For SaaS, the token is verified locally or against the Vercel API.
+    # To keep it fast, we trust the locally cached plan state.
+    return {
+        "id": token_data["user_id"],
+        "name": token_data.get("name", "User"),
+        "email": token_data.get("email", ""),
+        "plan": token_data.get("plan", "free")
+    }
 
 
 def get_user_plan(token: str) -> str:

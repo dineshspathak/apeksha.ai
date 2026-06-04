@@ -155,7 +155,7 @@ Rules:
                 result = re.sub(r'<think>.*?</think>', '', result, flags=re.DOTALL).strip()
                 return result
             except Exception as e:
-                pass  # Fall back to local
+                print(f"Cloud LLM exception: {e}", flush=True)  # Fall back to local
 
         # Local fallback
         try:

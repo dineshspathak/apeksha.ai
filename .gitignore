@@ -16,6 +16,8 @@ workspace/
 
 # Build artifacts
 .next/
+editor/out/
+out/
 dist/
 build/
 *.egg-info/
@@ -30,3 +32,16 @@ Thumbs.db
 
 # Docker
 ollama_data/
+
+# Desktop builds and packaging
+release-builds/
+*.spec
+dist/
+build/
+main.js
+package.json
+package-lock.json
+build-distribution.py
+start-app.sh
+scratch_test.py
+
