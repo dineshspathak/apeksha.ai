@@ -10,7 +10,13 @@ import urllib.parse
 from pathlib import Path
 
 
-WORKSPACE_DIR = os.environ.get("APEKSHA_WORKSPACE", "./workspace")
+
+def _get_workspace_dir() -> Path:
+    """Resolve workspace dir at call time (not import time)."""
+    ws = os.environ.get("APEKSHA_WORKSPACE", "")
+    if ws:
+        return Path(ws).expanduser()
+    return Path.home() / "ApekshaWorkspace"
 
 
 def generate_image(prompt: str, width: int = 1024, height: int = 1024) -> str:
@@ -33,7 +39,7 @@ def generate_image(prompt: str, width: int = 1024, height: int = 1024) -> str:
         url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width={width}&height={height}&nologo=true"
 
         # Save to workspace
-        output_dir = Path(WORKSPACE_DIR) / "generated_images"
+        output_dir = _get_workspace_dir() / "generated_images"
         output_dir.mkdir(parents=True, exist_ok=True)
 
         timestamp = int(time.time())
@@ -70,7 +76,7 @@ def generate_video(prompt: str) -> str:
         url = f"https://video.pollinations.ai/{encoded_prompt}"
 
         # Save to workspace
-        output_dir = Path(WORKSPACE_DIR) / "generated_videos"
+        output_dir = _get_workspace_dir() / "generated_videos"
         output_dir.mkdir(parents=True, exist_ok=True)
 
         timestamp = int(time.time())

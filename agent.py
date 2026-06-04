@@ -2,7 +2,6 @@
 
 import json
 import re
-import ollama
 
 from config import MODEL, SYSTEM_PROMPT, MAX_TOOL_ITERATIONS
 from memory import ShortTermMemory, LongTermMemory
@@ -139,38 +138,20 @@ Rules:
         yield ("response", response_text)
 
     def _call_llm(self) -> str:
-        """Call LLM — cloud (fast) or local (private)."""
+        """Call LLM — Groq cloud only (no local Ollama required)."""
         messages = [{"role": "system", "content": self.system_prompt}]
         messages.extend(self.short_memory.get_messages())
 
-        # Try cloud first (fast)
-        from cloud_llm import is_cloud_available, cloud_chat
+        from cloud_llm import cloud_chat
         from models import get_model_id
-        if is_cloud_available():
-            try:
-                model_id = get_model_id(self.active_brain, "cloud")
-                result = cloud_chat(messages, model=model_id)
-                # Clean up: remove <think>...</think> blocks
-                import re
-                result = re.sub(r'<think>.*?</think>', '', result, flags=re.DOTALL).strip()
-                return result
-            except Exception as e:
-                print(f"Cloud LLM exception: {e}", flush=True)  # Fall back to local
-
-        # Local fallback
         try:
-            local_model = get_model_id(self.active_brain, "local")
-            response = ollama.chat(
-                model=local_model,
-                messages=messages,
-                options={"num_ctx": 4096},
-            )
-            result = response["message"]["content"]
-            import re
+            model_id = get_model_id(self.active_brain, "cloud")
+            result = cloud_chat(messages, model=model_id)
+            # Clean up: remove <think>...</think> blocks
             result = re.sub(r'<think>.*?</think>', '', result, flags=re.DOTALL).strip()
             return result
         except Exception as e:
-            return f"Error communicating with Ollama: {e}"
+            return f"❌ AI Error: {e}. Please check your internet connection and try again."
 
     def _extract_tool_call(self, text: str) -> dict | None:
         """Extract a tool call from the LLM response."""

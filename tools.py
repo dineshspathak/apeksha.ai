@@ -7,6 +7,38 @@ import json
 from pathlib import Path
 
 
+# ═══════════════════════════════════════════════════════════════
+# WORKSPACE RESOLUTION
+# All file/directory operations resolve relative to the workspace.
+# ═══════════════════════════════════════════════════════════════
+
+def _get_workspace() -> Path:
+    """Return the active workspace directory (always writable)."""
+    ws = os.environ.get("APEKSHA_WORKSPACE", "")
+    if ws:
+        return Path(ws).expanduser().resolve()
+    # Default: ~/ApekshaWorkspace (writable on all platforms)
+    return Path.home() / "ApekshaWorkspace"
+
+
+def _resolve_path(path: str) -> Path:
+    """
+    Resolve a path for file operations.
+    - Absolute paths are used as-is.
+    - Relative paths are resolved relative to the workspace.
+    """
+    p = Path(path).expanduser()
+    if p.is_absolute():
+        return p
+    workspace = _get_workspace()
+    workspace.mkdir(parents=True, exist_ok=True)
+    return (workspace / path).resolve()
+
+
+# ═══════════════════════════════════════════════════════════════
+# TOOLS
+# ═══════════════════════════════════════════════════════════════
+
 def web_search(query: str) -> str:
     """Search the web using DuckDuckGo."""
     try:
@@ -55,16 +87,22 @@ def run_python(code: str) -> str:
         return f"Execution error: {e}"
 
 
-def run_shell(command: str, working_dir: str = ".") -> str:
+def run_shell(command: str, working_dir: str = "") -> str:
     """Execute a shell command and return its output."""
     try:
+        # Default cwd to workspace if not specified
+        if not working_dir:
+            cwd = str(_get_workspace())
+        else:
+            cwd = working_dir
+
         result = subprocess.run(
             command,
             shell=True,
             capture_output=True,
             text=True,
             timeout=120,
-            cwd=working_dir,
+            cwd=cwd,
         )
         output = ""
         if result.stdout:
@@ -83,9 +121,9 @@ def run_shell(command: str, working_dir: str = ".") -> str:
 def read_file(path: str) -> str:
     """Read contents of a file."""
     try:
-        file_path = Path(path).expanduser()
+        file_path = _resolve_path(path)
         if not file_path.exists():
-            return f"Error: File not found: {path}"
+            return f"Error: File not found: {path} (resolved to {file_path})"
         if file_path.stat().st_size > 500_000:
             return f"Error: File too large (>500KB)"
         return file_path.read_text(encoding="utf-8")
@@ -96,10 +134,10 @@ def read_file(path: str) -> str:
 def write_file(path: str, content: str) -> str:
     """Write content to a file. Creates directories if needed."""
     try:
-        file_path = Path(path).expanduser()
+        file_path = _resolve_path(path)
         file_path.parent.mkdir(parents=True, exist_ok=True)
         file_path.write_text(content, encoding="utf-8")
-        return f"✅ Written: {path} ({len(content)} chars)"
+        return f"✅ Written: {file_path} ({len(content)} chars)"
     except Exception as e:
         return f"Write error: {e}"
 
@@ -120,7 +158,10 @@ def create_project(name: str, structure) -> str:
         if not isinstance(structure, dict):
             return f"Project creation error: 'structure' must be a dictionary, got {type(structure).__name__}"
 
-        project_path = Path(name).expanduser()
+        # Always create project inside workspace
+        workspace = _get_workspace()
+        workspace.mkdir(parents=True, exist_ok=True)
+        project_path = (workspace / name).resolve()
         project_path.mkdir(parents=True, exist_ok=True)
 
         created_files = []
@@ -136,7 +177,7 @@ def create_project(name: str, structure) -> str:
             created_files.append(str(file_path))
 
         return (
-            f"✅ Project '{name}' created with {len(created_files)} files:\n"
+            f"✅ Project '{name}' created in {project_path} with {len(created_files)} files:\n"
             + "\n".join(f"  📄 {f}" for f in created_files)
         )
     except Exception as e:
@@ -146,9 +187,9 @@ def create_project(name: str, structure) -> str:
 def edit_file(path: str, old_text: str, new_text: str) -> str:
     """Replace specific text in a file."""
     try:
-        file_path = Path(path).expanduser()
+        file_path = _resolve_path(path)
         if not file_path.exists():
-            return f"Error: File not found: {path}"
+            return f"Error: File not found: {path} (resolved to {file_path})"
 
         content = file_path.read_text(encoding="utf-8")
         if old_text not in content:
@@ -156,7 +197,7 @@ def edit_file(path: str, old_text: str, new_text: str) -> str:
 
         new_content = content.replace(old_text, new_text, 1)
         file_path.write_text(new_content, encoding="utf-8")
-        return f"✅ Edited {path}"
+        return f"✅ Edited {file_path}"
     except Exception as e:
         return f"Edit error: {e}"
 
@@ -164,22 +205,26 @@ def edit_file(path: str, old_text: str, new_text: str) -> str:
 def append_file(path: str, content: str) -> str:
     """Append content to end of a file."""
     try:
-        file_path = Path(path).expanduser()
+        file_path = _resolve_path(path)
         if not file_path.exists():
             return f"Error: File not found: {path}. Use write_file to create it."
         with open(file_path, "a", encoding="utf-8") as f:
             f.write(content)
-        return f"✅ Appended to {path} ({len(content)} chars)"
+        return f"✅ Appended to {file_path} ({len(content)} chars)"
     except Exception as e:
         return f"Append error: {e}"
 
 
-def list_files(directory: str = ".") -> str:
+def list_files(directory: str = "") -> str:
     """List files in a directory recursively (up to 3 levels)."""
     try:
-        dir_path = Path(directory).expanduser()
+        if directory:
+            dir_path = _resolve_path(directory)
+        else:
+            dir_path = _get_workspace()
+
         if not dir_path.exists():
-            return f"Error: Directory not found: {directory}"
+            return f"Error: Directory not found: {dir_path}"
 
         entries = []
         _list_recursive(dir_path, entries, depth=0, max_depth=3)

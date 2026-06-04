@@ -42,26 +42,25 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Server configuration error: Groq API key is missing' }, { status: 500 });
     }
 
-    // 3. Forward request to Groq Cloud API
-    const payload = {
-      model: model || 'llama-3.3-70b-versatile',
-      messages: messages,
-      temperature: 0.7,
-      max_tokens: 4096,
-    };
+    // 3. Forward request to Groq Cloud API — with automatic model fallback chain on 429
+    const FALLBACK_MODELS = [
+      model || 'llama-3.3-70b-versatile',
+      'meta-llama/llama-4-scout-17b-16e-instruct',
+      'llama-3.1-8b-instant',
+      'gemma2-9b-it',
+    ];
 
-    let response = await fetch(GROQ_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${groqKey}`,
-      },
-      body: JSON.stringify(payload),
-    });
+    let response: Response | null = null;
+    let lastError = '';
 
-    // Fallback if rate limited (429)
-    if (response.status === 429 && payload.model !== 'llama-3.1-8b-instant') {
-      payload.model = 'llama-3.1-8b-instant';
+    for (const tryModel of FALLBACK_MODELS) {
+      const payload = {
+        model: tryModel,
+        messages: messages,
+        temperature: 0.7,
+        max_tokens: 4096,
+      };
+
       response = await fetch(GROQ_URL, {
         method: 'POST',
         headers: {
@@ -70,11 +69,19 @@ export async function POST(req: Request) {
         },
         body: JSON.stringify(payload),
       });
-    }
 
-    if (!response.ok) {
+      if (response.status === 200) break; // success, stop trying
+      if (response.status === 429) {
+        lastError = `Rate limited on ${tryModel}`;
+        continue; // try next model
+      }
+      // Other error — stop
       const errorText = await response.text();
       return NextResponse.json({ error: `Groq API Error: ${errorText}` }, { status: response.status });
+    }
+
+    if (!response || !response.ok) {
+      return NextResponse.json({ error: `All models rate limited. Try again in a moment.` }, { status: 429 });
     }
 
     const data = await response.json();

@@ -13,6 +13,7 @@ from billing import get_plans, get_subscription, upgrade_plan, cancel_plan
 from updater import check_model_update, check_software_update, auto_update_model, auto_update_software
 from models import list_models, get_model_info
 from config import WEB_HOST, WEB_PORT, AGENT_NAME
+from cloud_llm import cloud_chat
 
 import sys
 if getattr(sys, 'frozen', False):
@@ -359,15 +360,11 @@ Code after cursor:
 Complete:"""
 
     try:
-        import ollama
-        response = ollama.chat(
-            model=agent.model,
-            messages=[
-                {"role": "system", "content": "You are a code completion engine. Return ONLY the code to insert. No explanations, no markdown."},
-                {"role": "user", "content": prompt},
-            ],
-        )
-        suggestion = response["message"]["content"].strip()
+        messages = [
+            {"role": "system", "content": "You are a code completion engine. Return ONLY the code to insert. No explanations, no markdown."},
+            {"role": "user", "content": prompt},
+        ]
+        suggestion = cloud_chat(messages, model="llama-3.1-8b-instant").strip()
         suggestion = suggestion.replace("```", "").strip()
         lines = suggestion.split("\n")
         suggestion = "\n".join(lines[:5])
@@ -396,15 +393,11 @@ Code:
 Modified code:"""
 
     try:
-        import ollama
-        response = ollama.chat(
-            model=agent.model,
-            messages=[
-                {"role": "system", "content": "You are a code editor. Return ONLY modified code. No explanations, no markdown fences."},
-                {"role": "user", "content": prompt},
-            ],
-        )
-        result = response["message"]["content"].strip()
+        messages = [
+            {"role": "system", "content": "You are a code editor. Return ONLY modified code. No explanations, no markdown fences."},
+            {"role": "user", "content": prompt},
+        ]
+        result = cloud_chat(messages, model="llama-3.3-70b-versatile").strip()
         if result.startswith("```"):
             lines = result.split("\n")
             result = "\n".join(lines[1:-1]) if lines[-1].strip() == "```" else "\n".join(lines[1:])
@@ -421,15 +414,12 @@ def ai_explain():
         return jsonify({"error": "Code required"}), 400
 
     try:
-        import ollama
-        response = ollama.chat(
-            model=agent.model,
-            messages=[
-                {"role": "system", "content": "Explain code concisely and clearly."},
-                {"role": "user", "content": f"Explain this code:\n\n{code}"},
-            ],
-        )
-        return jsonify({"explanation": response["message"]["content"]})
+        messages = [
+            {"role": "system", "content": "Explain code concisely and clearly."},
+            {"role": "user", "content": f"Explain this code:\n\n{code}"},
+        ]
+        explanation = cloud_chat(messages, model="llama-3.1-8b-instant")
+        return jsonify({"explanation": explanation})
     except Exception as e:
         return jsonify({"error": str(e)})
 
